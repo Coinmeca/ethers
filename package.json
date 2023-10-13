@@ -1,6 +1,7 @@
 {
     "name": "@coinmeca/ethers",
     "description": "Solidty helpers and utilities for using ethers.",
+    "version": "1.1.9",
     "keywords": [
         "coinmeca",
         "smart-contract",
@@ -16,27 +17,27 @@
         "url": "https://github.com/Coinmeca/ethers"
     },
     "author": "Coinmeca Team <dev@coinmeca.net>",
-    "version": "1.1.0",
     "license": "MIT",
-    "type": "module",
     "sideEffects": false,
+    "type": "commonjs",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
+    "typings": "./dist/index.d.js",
     "files": [
-        "./dist",
-        "./dist/*",
-        "./dist/*/*"
+        "./dist"
     ],
     "exports": {
-        ".": "./dist",
-        "./*": "./dist/*"
+        ".": "./dist/index.js",
+        "./*": "./dist/*.js",
+        "./interfaces": "./dist/interfaces/index.js",
+        "./interfaces/*":"./dist/interfaces/*.js"
     },
     "typesVersions": {
         "*": {
             "*": [
                 "./dist",
                 "./dist/*",
-                "./dist/*/index"
+                "./dist/*/index.js"
             ]
         }
     },
@@ -62,6 +63,18 @@
         "tsc-alias": "^1.8.7",
         "tscp": "^1.0.0",
         "typescript": "^5.2.2"
+    },
+    "peerDependencies": {
+        "ts-node": "*",
+        "typescript": "*"
+    },
+    "peerDependenciesMeta": {
+        "ts-node": {
+        "optional": true
+        },
+        "typescript": {
+        "optional": true
+        }
     },
     "commitlint": {
         "extends": [
