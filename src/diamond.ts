@@ -34,7 +34,7 @@ interface DiamondExportConfig {
     file?: string;
 }
 
-interface DiamondAbiConfig extends DiamondExportConfig {
+interface abiConfig extends DiamondExportConfig {
     include?: string[];
     exclude?: string[];
     filter?: (abiElement: any, index: number, abi: any[], name: string) => boolean;
@@ -42,7 +42,7 @@ interface DiamondAbiConfig extends DiamondExportConfig {
 
 interface DiamondArtifactConfig {
     diamonds?: string[];
-    abi?: DiamondAbiConfig;
+    abi?: abiConfig;
 }
 
 export interface DiamondConfig {
@@ -63,7 +63,7 @@ type ArtifactsEmittedPerJob = Array<{
     artifactsEmittedPerFile: ArtifactsEmittedPerFile;
 }>;
 
-class DiamondAbiCompilationJob extends CompilationJob {
+class abiCompilationJob extends CompilationJob {
     private _file: ResolvedFile;
 
     private artifacts: ReturnType<typeof createArtifact>[] = [];
@@ -114,19 +114,19 @@ class DiamondAbiCompilationJob extends CompilationJob {
 //         const { diamond, include, exclude, filter } = config ?? {};
 
 //         if (diamond && !Array.isArray(diamond)) {
-//             throw new HardhatPluginError(`DiamondAbi`, '`diamond` config must be a string.');
+//             throw new HardhatPluginError(`abi`, '`diamond` config must be a string.');
 //         }
 
 //         if (include && !Array.isArray(include)) {
-//             throw new HardhatPluginError(`DiamondAbi`, '`include` config must be an array if provided.');
+//             throw new HardhatPluginError(`abi`, '`include` config must be an array if provided.');
 //         }
 
 //         if (exclude && !Array.isArray(exclude)) {
-//             throw new HardhatPluginError(`DiamondAbi`, '`exclude` config must be an array if provided.');
+//             throw new HardhatPluginError(`abi`, '`exclude` config must be an array if provided.');
 //         }
 
 //         if (filter && typeof filter !== 'function') {
-//             throw new HardhatPluginError(`DiamondAbi`, '`filter` config must be a function if provided.');
+//             throw new HardhatPluginError(`abi`, '`filter` config must be a function if provided.');
 //         }
 
 //         return {
@@ -138,25 +138,7 @@ class DiamondAbiCompilationJob extends CompilationJob {
 // };
 
 
-export function createArtifact(artifact: { name: string; directory: string; info: any }, abi: unknown[]): Artifact {
-    const abis = [...artifact.info.abi, ...abi];
-    abi = [];
-    for (let i = 0; i < abis.length; i++) {
-        abi = abi.filter((abi) => JSON.stringify(abis[i]).trim() !== JSON.stringify(abi).trim());
-        abi.push(abis[i]);
-    }
-
-    const path = diamondConfig?.artifact?.abi?.path?.startsWith('artifacts') ? diamondConfig?.artifact?.abi?.path?.replace('artifacts', '') : diamondConfig?.artifact?.abi?.path;
-
-    return {
-        ...artifact.info,
-        contractName: `${artifact.name}.${diamondConfig.artifact?.abi?.file || 'diamond'}`,
-        sourceName: `${path || '.diamonds/'}/${artifact.name}.sol`,
-        abi: Array.from(new Set(abi))
-    } as const;
-}
-
-async function createDiamondArtifact(contract: string, contracts?: string[]) {
+async function __createArtifact(contract: string, contracts?: string[]) {
     contracts = (contracts || (await artifacts.getAllFullyQualifiedNames())).filter((f: string) => !f.includes('.diamond'));
     const artifactName: string = contract + (contract.includes(':') ? '' : '.sol:' + contract);
 
@@ -232,8 +214,26 @@ async function createDiamondArtifact(contract: string, contracts?: string[]) {
     return { name, path, directory, facets: result, info };
 }
 
-export async function diamondInfo(diamond: { name: string; address?: string; facets?: any[]; init?: Args }) {
-    const contract = await createDiamondArtifact(diamond.name);
+export function createArtifact(artifact: { name: string; directory: string; info: any }, abi: unknown[]): Artifact {
+    const abis = [...artifact.info.abi, ...abi];
+    abi = [];
+    for (let i = 0; i < abis.length; i++) {
+        abi = abi.filter((abi) => JSON.stringify(abis[i]).trim() !== JSON.stringify(abi).trim());
+        abi.push(abis[i]);
+    }
+
+    const path = diamondConfig?.artifact?.abi?.path?.startsWith('artifacts') ? diamondConfig?.artifact?.abi?.path?.replace('artifacts', '') : diamondConfig?.artifact?.abi?.path;
+
+    return {
+        ...artifact.info,
+        contractName: `${artifact.name}.${diamondConfig.artifact?.abi?.file || 'diamond'}`,
+        sourceName: `${path || '.diamonds/'}/${artifact.name}.sol`,
+        abi: Array.from(new Set(abi))
+    } as const;
+}
+
+export async function createInfo(diamond: { name: string; address?: string; facets?: any[]; init?: Args }) {
+    const contract = await __createArtifact(diamond.name);
 
     const path = `${diamondConfig.loupe?.path || 'artifacts/.diamonds'}/${contract.name}.sol`;
     const file = `${path}/${contract.name}.${diamondConfig.loupe?.file || 'facets'}.json`;
@@ -241,7 +241,7 @@ export async function diamondInfo(diamond: { name: string; address?: string; fac
     writeFile(file, JSON.stringify(diamond, null, 2), async (e) => {
         if (e?.message.includes('no such file or directory')) {
             mkdirSync(path, { recursive: true });
-            await diamondInfo(diamond);
+            await createInfo(diamond);
         } else if (e) {
             console.error(e);
         }
@@ -250,10 +250,10 @@ export async function diamondInfo(diamond: { name: string; address?: string; fac
     return file;
 }
 
-export async function diamondABI(contract: string, contracts?: string[]): Promise<string> {
-    const diamondArtifact = await createDiamondArtifact(contract, contracts);
+export async function abi(contract: string, contracts?: string[]): Promise<string> {
+    const diamondArtifact = await __createArtifact(contract, contracts);
 
-    const compilationJob = new DiamondAbiCompilationJob(diamondArtifact.directory, diamondArtifact.name);
+    const compilationJob = new abiCompilationJob(diamondArtifact.directory, diamondArtifact.name);
     const abis: string[] = [];
 
     for (const facet of diamondArtifact.facets) {
@@ -287,7 +287,7 @@ export async function diamondABI(contract: string, contracts?: string[]): Promis
     return diamond.contractName;
 }
 
-export async function diamondCut(cuts: Cut[], display?: boolean, name?: string): Promise<any[]> {
+export async function cut(cuts: Cut[], display?: boolean, name?: string): Promise<any[]> {
     const diamond = [];
     for (let i = 0; i < cuts.length; i++) {
         let data = [];
@@ -321,7 +321,7 @@ export async function diamondCut(cuts: Cut[], display?: boolean, name?: string):
     return diamond;
 }
 
-export async function diamondFactory(name: string, args: any[]) {
+export async function factory(name: string, args: any[]) {
     let diamond: any = { name };
     for (const arg of args) {
         if (Array.isArray(arg) && 'key' in arg[0] && 'data' in arg[0]) diamond = { ...diamond, facets: arg };
@@ -345,7 +345,7 @@ export async function diamondFactory(name: string, args: any[]) {
     } catch (error) {
         if (JSON.stringify(error).includes('not found')) {
             try {
-                contract = await ethers.getContractFactory(await diamondABI(name));
+                contract = await ethers.getContractFactory(await abi(name));
             } catch {
                 try {
                     contract = await ethers.getContractFactory(`${name}.${diamondConfig.artifact?.abi?.file || 'diamond'}`);
@@ -357,7 +357,7 @@ export async function diamondFactory(name: string, args: any[]) {
     }
 
     const deployed = await contract.deploy(...args);
-    await diamondInfo({
+    await createInfo({
         name: diamond.name,
         address: await deployed.getAddress(),
         facets: diamond.facets,
@@ -365,6 +365,36 @@ export async function diamondFactory(name: string, args: any[]) {
     });
 
     return deployed;
+}
+
+export async function get(this: any, functionNames: string[]) {
+    const selectors = this.filter((v: any) => {
+        for (const functionName of functionNames) {
+            if (v === this.contract.interface.getSighash(functionName)) {
+                return true;
+            }
+        }
+        return false;
+    });
+    selectors.contract = this.contract;
+    selectors.remove = this.remove;
+    selectors.get = this.get;
+    return selectors;
+}
+
+export async function remove(this: any, functionNames: string[]) {
+    const selectors: any = this.filter((v: any) => {
+        for (const functionName of functionNames) {
+            if (v === this.contract.interface.getSighash(functionName)) {
+                return false;
+            }
+        }
+        return true;
+    });
+    selectors.contract = this.contract;
+    selectors.remove = this.remove;
+    selectors.get = this.get;
+    return selectors;
 }
 
 export async function getSelectors(contract: any) {
@@ -386,36 +416,6 @@ export async function getSelector(func: any) {
     return abiInterface.getSighash(ethers.Fragment.from(func));
 }
 
-export async function remove(this: any, functionNames: string[]) {
-    const selectors: any = this.filter((v: any) => {
-        for (const functionName of functionNames) {
-            if (v === this.contract.interface.getSighash(functionName)) {
-                return false;
-            }
-        }
-        return true;
-    });
-    selectors.contract = this.contract;
-    selectors.remove = this.remove;
-    selectors.get = this.get;
-    return selectors;
-}
-
-export async function get(this: any, functionNames: string[]) {
-    const selectors = this.filter((v: any) => {
-        for (const functionName of functionNames) {
-            if (v === this.contract.interface.getSighash(functionName)) {
-                return true;
-            }
-        }
-        return false;
-    });
-    selectors.contract = this.contract;
-    selectors.remove = this.remove;
-    selectors.get = this.get;
-    return selectors;
-}
-
 export async function removeSelectors(selectors: any, signatures: any) {
     const iface: any = new ethers.Interface(signatures.map((v: string) => 'function ' + v));
     const removeSelectors = signatures.map((v: any) => iface.getSighash(v));
@@ -431,12 +431,7 @@ export async function findAddressPositionInFacets(facetAddress: any, facets: any
     }
 }
 
-// We ONLY hook this task, instead of providing a separate task to run, because
-// Hardhat will clear out old artifacts on next run if we don't work around their
-// caching mechanisms.
-subtask(TASK_COMPILE_SOLIDITY_COMPILE_JOBS).setAction(generateDiamondAbi);
-
-export async function generateDiamondAbi(
+export async function compile(
     args: TaskArguments,
     hre: HardhatRuntimeEnvironment,
     runSuper: RunSuperFunction<TaskArguments>
@@ -450,8 +445,8 @@ export async function generateDiamondAbi(
     const diamonds = diamondConfig?.artifact?.diamonds;
     if (Array.isArray(diamonds) && diamonds?.length > 0) {
         for (const diamond of diamonds) {
-            const diamondArtifact = await createDiamondArtifact(diamond, await hre.artifacts.getAllFullyQualifiedNames());
-            const compilationJob = new DiamondAbiCompilationJob(diamondArtifact.directory, diamondArtifact.name);
+            const diamondArtifact = await __createArtifact(diamond, await hre.artifacts.getAllFullyQualifiedNames());
+            const compilationJob = new abiCompilationJob(diamondArtifact.directory, diamondArtifact.name);
             const file = compilationJob.getFile();
             const artifactsEmitted = compilationJob.getArtifactsEmitted();
 
@@ -473,3 +468,8 @@ export async function generateDiamondAbi(
         }
     }
 }
+
+// We ONLY hook this task, instead of providing a separate task to run, because
+// Hardhat will clear out old artifacts on next run if we don't work around their
+// caching mechanisms.
+subtask(TASK_COMPILE_SOLIDITY_COMPILE_JOBS).setAction(compile);

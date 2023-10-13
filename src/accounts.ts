@@ -30,7 +30,7 @@ export interface IUser extends AccountLike {
     set: (name: number | string) => void;
 }
 
-export async function Accounts(contracts: { app?: any; tokens?: IERC20[] }) {
+export async function Accounts(contracts?: { app?: any; tokens?: IERC20[] }) {
     if (!signers) {
         signers = signers || {
             ...await Promise.all((await ethers.getSigners()).map(async (a: any) => {
@@ -48,7 +48,7 @@ export async function Accounts(contracts: { app?: any; tokens?: IERC20[] }) {
         if (!address || typeof signer !== 'object') throw error('Not found user: ', name);
 
         const balance = async (token?: IERC20): Promise<any> => {
-            if (Array.isArray(contracts.tokens)) {
+            if (contracts?.tokens && Array.isArray(contracts?.tokens)) {
                 const tokens = token ? [token] : contracts?.tokens;
                 console.log(color.black(`--------------------- User: '${name}' Wallet ----------------------`));
                 a(User(name), true);
@@ -93,15 +93,15 @@ export async function Accounts(contracts: { app?: any; tokens?: IERC20[] }) {
             return await token.use(User(name)).approve(to, amount)
         }
 
-        const getHistory = async (): Promise<any[] | void> => {
-            const App = contracts?.app;
+        const getHistory = async (app?: any): Promise<any[] | void> => {
+            const App = app || contracts?.app;
             if (App) {
                 return await App.historyGetAll(User(name));
             }
         }
 
-        const history = async (history?: any): Promise<any[] | void> => {
-            const App = contracts?.app;
+        const history = async (history?: any, app?: any): Promise<any[] | void> => {
+            const App = app || contracts?.app;
             if (App) {
                 const h = history ? history : await App.historyGetAll(User(name));
                 console.log(color.black(`---------------------------  User: '${name}' History ---------------------------`));

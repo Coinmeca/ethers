@@ -26,7 +26,7 @@ export interface IERC721Module extends AccountLike {
     isApprovedForAll: (owner: any, operator: any) => Promise<any>;
 }
 
-export default async function ERC721(token: any): Promise<IERC721> {
+export async function ERC721(token: any): Promise<IERC721> {
     const name = await token.name();
     const symbol = await token.symbol();
     const address = await token.getAddress();
@@ -179,3 +179,5 @@ export default async function ERC721(token: any): Promise<IERC721> {
         use
     };
 }
+
+export default ERC721;
