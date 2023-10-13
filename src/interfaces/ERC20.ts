@@ -20,9 +20,9 @@ export interface IERC20Module extends AccountLike {
     faucet: (to: AccountLike, amount: number) => Promise<boolean | void>;
 }
 
-export default async function ERC20(token: any): Promise<IERC20> {
+export async function ERC20(token: any): Promise<IERC20> {
     const name = await token.name();
-    const symbol = await token.symbol();
+    const symbol: string = await token.symbol();
     const decimals = parseInt(formatUnits(await token.decimals()));
     const address = await token.getAddress();
     const totalSupply = u(await token.totalSupply());
@@ -78,3 +78,5 @@ export default async function ERC20(token: any): Promise<IERC20> {
         use
     };
 }
+
+export default ERC20;

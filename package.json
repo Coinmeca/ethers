@@ -2,6 +2,7 @@
     "name": "@coinmeca/ethers",
     "description": "Solidty helpers and utilities for using ethers.",
     "keywords": [
+        "coinmeca",
         "smart-contract",
         "solidity",
         "ethereum",
@@ -15,27 +16,34 @@
         "url": "https://github.com/Coinmeca/ethers"
     },
     "author": "Coinmeca Team <dev@coinmeca.net>",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "license": "MIT",
     "type": "module",
     "sideEffects": false,
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "module": "dist/index.esm.js",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "files": [
-        "dist",
-        "LICENSE",
-        "package.json"
+        "./dist",
+        "./dist/*",
+        "./dist/*/*"
     ],
     "exports": {
-        ".": "./dist/index.js",
+        ".": "./dist",
         "./*": "./dist/*"
     },
+    "typesVersions": {
+        "*": {
+            "*": [
+                "./dist",
+                "./dist/*",
+                "./dist/*/index"
+            ]
+        }
+    },
     "scripts": {
-        "watch": "rimraf ./dist && tsc --watch",
-        "build": "rimraf ./dist && tsc && tsc-alias && tscp",
+        "watch": "tsc --watch",
+        "build": "tsc --build && tsc-alias",
         "clean": "rimraf ./dist ./build ./tsconfig.tsbuildinfo ./node_modules/.cache"
-
     },
     "devDependencies": {
         "@commitlint/cli": "^17.2.0",
@@ -44,7 +52,6 @@
         "@nomicfoundation/hardhat-ethers": "^3.0.4",
         "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
         "@nomicfoundation/hardhat-toolbox": "^3.0.0",
-        "@nomiclabs/hardhat-ethers": "^2.2.1",
         "@nomiclabs/hardhat-waffle": "^2.0.1",
         "@typechain/ethers-v6": "^0.5.0",
         "@typechain/hardhat": "^9.0.0",
@@ -53,6 +60,7 @@
         "ethers": "^6.8.0",
         "hardhat": "^2.18.1",
         "tsc-alias": "^1.8.7",
+        "tscp": "^1.0.0",
         "typescript": "^5.2.2"
     },
     "commitlint": {
