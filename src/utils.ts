@@ -126,7 +126,7 @@ export function ft(n: number): string {
 }
 
 export async function revert(call: any, message?: string, value?: any) {
-    console.log(color.black(`-------------------------------------------------------------`));
+    console.log(color.lightGray(`-------------------------------------------------------------`));
     try {
         await expect(call, message).to.be.reverted;
         if (message && value)
@@ -149,7 +149,7 @@ export async function revert(call: any, message?: string, value?: any) {
         else if (message && !value) throw error(`${font.bold(color.red(`Wrong Revert: ${message}`))}${e ? color.red(e) : ''}`);
         else if (!message && !value) throw error(`${font.bold(color.red(`Wrong Revert`))}${e ? color.red(e) : ''}`);
     }
-    console.log(color.black(`-------------------------------------------------------------`));
+    console.log(color.lightGray(`-------------------------------------------------------------`));
 }
 
 export const font = {
@@ -202,7 +202,7 @@ export function result(result: boolean, message: string, option: any) {
                 ? option.map((o) => { console.log(color.lightGray(' - ' + o), '\n') }) : option
         );
     } else {
-        console.log(color.red(font.bold('❌')), color.red(` ${message || 'Failure'}\n\n`), option && color.black(option), '\n');
+        console.log(color.red(font.bold('❌')), color.red(` ${message || 'Failure'}\n\n`), option && color.lightGray(option), '\n');
     }
 }
 
