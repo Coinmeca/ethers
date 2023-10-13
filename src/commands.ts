@@ -6,7 +6,7 @@ export function deploy() {
         [
             'hardhat run',
             `scripts/deploy/${process.argv[2]}.ts`,
-            process.argv[3] && '--network',
+            process.argv[3] && process.argv[3].startsWith('--') ? '--network' : '',
             ...process.argv.map((arg, i) => {
                 if (i > 2) return arg;
             })
@@ -14,7 +14,7 @@ export function deploy() {
         config
     );
 
-    console.log(process.argv[3] && '\n' + '📡 Network:  ' + process.argv[3].replaceAll('_', ' ').replaceAll('.', ' '));
+    process.argv[3] && console.log('\n' + '📡 Network:  ' + process.argv[3].replaceAll('_', ' ').replaceAll('.', ' '));
 }
 
 export function scenario() {
