@@ -293,9 +293,9 @@ export async function cut(cuts: Cut[], display?: boolean, name?: string): Promis
         let data = [];
 
         if (display) {
-            console.log(color.black(`---------------------------------------------------------------`));
+            console.log(color.lightGray(`---------------------------------------------------------------`));
             console.log(color.lightGray(_(`Key:`, 14)), font.bold(color.white(cuts[i].key)));
-            console.log(color.black(`---------------------------------------------------------------`));
+            console.log(color.lightGray(`---------------------------------------------------------------`));
         }
 
         for (const facetName of cuts[i].data) {
@@ -307,7 +307,7 @@ export async function cut(cuts: Cut[], display?: boolean, name?: string): Promis
                 console.log(color.lightGray(_(`Facet:`, 14)), facetName);
                 console.log(color.lightGray(_(`Address:`, 14)), address);
                 console.log(color.lightGray(_(`Selectors:`, 14)), selectors);
-                console.log(color.black(`---------------------------------------------------------------`));
+                console.log(color.lightGray(`---------------------------------------------------------------`));
             }
 
             data.push({

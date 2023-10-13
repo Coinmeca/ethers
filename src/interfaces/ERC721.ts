@@ -35,9 +35,9 @@ export async function ERC721(token: any): Promise<IERC721> {
         const getId = async (key: string, display?: boolean): Promise<number> => {
             const id: number = await token.getId(key);
             if (display) {
-                console.log(color.black(`------------------------- Order NFT --------------------------`));
+                console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
                 console.log(`🖼️ Token ID:     ${id}`);
-                console.log(color.black(`--------------------------------------------------------------`));
+                console.log(color.lightGray(`--------------------------------------------------------------`));
             }
             return id;
         };
@@ -45,9 +45,9 @@ export async function ERC721(token: any): Promise<IERC721> {
         const getKey = async (id: number, display?: boolean): Promise<string> => {
             const key: string = await token.getKey(id);
             if (display) {
-                console.log(color.black(`------------------------- Order NFT --------------------------`));
+                console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
                 console.log(`🔑 Order Key:     ${key}`);
-                console.log(color.black(`--------------------------------------------------------------`));
+                console.log(color.lightGray(`--------------------------------------------------------------`));
             }
             return key;
         }
@@ -55,10 +55,10 @@ export async function ERC721(token: any): Promise<IERC721> {
         const tokenURI = async (id: number | string, display?: boolean): Promise<string> => {
             const uri = await token.tokenURI(id);
             if (display) {
-                console.log(color.black(`------------------------- Order NFT --------------------------`));
+                console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
                 console.log(`Token ID:     ${id}`);
                 console.log(`Token IMG:    ${uri}`);
-                console.log(color.black(`--------------------------------------------------------------`));
+                console.log(color.lightGray(`--------------------------------------------------------------`));
             }
             return uri;
         }
@@ -66,10 +66,10 @@ export async function ERC721(token: any): Promise<IERC721> {
         const tokenIMG = async (id: number | string, display?: boolean): Promise<string> => {
             const img = await token.tokenIMG(id);
             if (display) {
-                console.log(color.black(`------------------------- Order NFT --------------------------`));
+                console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
                 console.log(`Token ID:     ${id}`);
                 console.log(`Token IMG:    ${img}`);
-                console.log(color.black(`--------------------------------------------------------------`));
+                console.log(color.lightGray(`--------------------------------------------------------------`));
             }
             return img;
         }
@@ -77,10 +77,10 @@ export async function ERC721(token: any): Promise<IERC721> {
         const balanceOf = async (owner: any, display?: boolean): Promise<number> => {
             const balance = await token.balanceOf(a(owner))
             if (display) {
-                console.log(color.black(`------------------------- Order NFT --------------------------`));
+                console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
                 console.log(`Owner:        ${a(owner)}`);
                 console.log(`Tokens:       ${balance}`);
-                console.log(color.black(`--------------------------------------------------------------`));
+                console.log(color.lightGray(`--------------------------------------------------------------`));
             }
             return balance;
         }
@@ -88,10 +88,10 @@ export async function ERC721(token: any): Promise<IERC721> {
         const tokensOf = async (owner: any, display?: boolean): Promise<number[]> => {
             const tokens = await token.tokensOf(a(owner));
             if (display) {
-                console.log(color.black(`------------------------- Order NFT --------------------------`));
+                console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
                 console.log(`Owner:         ${a(owner)}`);
                 console.log(`Tokens:        ${tokens}`);
-                console.log(color.black(`--------------------------------------------------------------`));
+                console.log(color.lightGray(`--------------------------------------------------------------`));
             }
             return tokens;
         }
@@ -99,10 +99,10 @@ export async function ERC721(token: any): Promise<IERC721> {
         const keysOf = async (owner: any, display?: boolean): Promise<string[]> => {
             const keys = await token.keysOf(a(owner));
             if (display) {
-                console.log(color.black(`------------------------- Order NFT --------------------------`));
+                console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
                 console.log(`Owner:         ${a(owner)}`);
                 console.log(`Keys:          ${keys}`);
-                console.log(color.black(`--------------------------------------------------------------`));
+                console.log(color.lightGray(`--------------------------------------------------------------`));
             }
             return keys;
         }
@@ -110,10 +110,10 @@ export async function ERC721(token: any): Promise<IERC721> {
         const ownerOf = async (id: number | string, display?: boolean): Promise<AddressLike> => {
             const owner = await token.ownerOf(id);
             if (display) {
-                console.log(color.black(`------------------------- Order NFT --------------------------`));
+                console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
                 console.log(`Owner:        ${a(owner)}`);
                 console.log(`Token ID:     ${id}`);
-                console.log(color.black(`--------------------------------------------------------------`));
+                console.log(color.lightGray(`--------------------------------------------------------------`));
             }
             return owner;
         };

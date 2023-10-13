@@ -50,22 +50,22 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
         const balance = async (token?: IERC20): Promise<any> => {
             const tokens: IERC20[] | undefined = contracts?.tokens && typeof contracts?.tokens === 'object' ? Object.values(contracts?.tokens) : Array.isArray(contracts?.tokens) && contracts?.tokens || token && [token]
             if (tokens) {
-                console.log(color.black(`--------------------- User: '${name}' Wallet ----------------------`));
+                console.log(color.lightGray(`--------------------- User: '${name}' Wallet ----------------------`));
                 a(User(name), true);
-                console.log(color.black(`-------------------------------------------------------------`))
+                console.log(color.lightGray(`-------------------------------------------------------------`))
                 if (tokens?.length > 0) {
                     for (let i = 0; i < tokens?.length; i++) {
                         if (tokens[i]) {
                             const symbol = tokens[i].symbol;
                             const balance = await tokens[i].balanceOf({ address });
-                            if (symbol == 'MECA') console.log(color.black(`-------------------------------------------------------------`))
+                            if (symbol == 'MECA') console.log(color.lightGray(`-------------------------------------------------------------`))
                             console.log(`${_(`${symbol}:`, 14)}${font.bold(color.yellow(f(balance)))}`);
                         }
                     }
                 } else {
                     console.log(`There are no tokens deployed yet.`);
                 }
-                console.log(color.black(`-------------------------------------------------------------`));
+                console.log(color.lightGray(`-------------------------------------------------------------`));
 
                 return tokens.length == 1 ? tokens[0] : tokens;
             }
@@ -78,9 +78,9 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
         const faucet = async (token: IERC20, amount: number, display?: boolean): Promise<boolean | void> => {
             const result = await token.faucet({ address }, amount);
             if (result && display) {
-                console.log(color.black(`-------------------------------------------------------------`));
+                console.log(color.lightGray(`-------------------------------------------------------------`));
                 console.log(`-> ✨ '${name}' earn '${amount} ${token.symbol}'`);
-                console.log(color.black(`-------------------------------------------------------------`));
+                console.log(color.lightGray(`-------------------------------------------------------------`));
             }
             return result;
         }
@@ -105,9 +105,9 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
             const App = app || contracts?.app;
             if (App) {
                 const h = history ? history : await App.historyGetAll(User(name));
-                console.log(color.black(`---------------------------  User: '${name}' History ---------------------------`));
+                console.log(color.lightGray(`---------------------------  User: '${name}' History ---------------------------`));
                 console.log(`Total: ${h.length}`);
-                console.log(color.black(`--------------------------------------------------------------------------------`));
+                console.log(color.lightGray(`--------------------------------------------------------------------------------`));
                 for (let i = 0; i < h.length; i++) {
                     console.log(`${color.lightGray(`Key:`)}          ${h[i].key}`);
                     console.log(`${color.lightGray(`Market:`)}       ${color.lightGray(h[i].market)}`);
@@ -116,7 +116,7 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
                     console.log(`${color.lightGray(`Price:`)}        ${font.bold(color.yellow(f(u(h[i].price))))}`);
                     console.log(`${color.lightGray(`Amount:`)}       ${f(u(h[i].amount))}`);
                     console.log(`${color.lightGray(`Quantity:`)}     ${color.yellow(f(u(h[i].quantity)))}`);
-                    console.log(color.black(`--------------------------------------------------------------------------------`));
+                    console.log(color.lightGray(`--------------------------------------------------------------------------------`));
                 }
                 return h;
             }
