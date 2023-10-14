@@ -23,7 +23,7 @@ export interface IUser extends AccountLike {
     balance: () => Promise<any>;
     send: (token: any, to: any, amount: number) => Promise<boolean | void>;
     faucet: (token: any, amount: number, display?: boolean) => Promise<boolean | void>;
-    allowance: (token: any, to: any, amount: number) => Promise<number | string>;
+    allowance: (token: IERC20, owner: AccountLike, spender: AccountLike) => Promise<number | string>;
     approve: (token: any, to: any, amount: number) => Promise<boolean | void>;
     history: () => Promise<any[]>;
     getHistory: () => Promise<any[]>;
@@ -85,8 +85,8 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
             return result;
         }
 
-        const allowance = async (token: IERC20, to: AccountLike, amount: number): Promise<number | string> => {
-            return u(await token.use(User(name)).allowance(to, amount))
+        const allowance = async (token: IERC20, owner: AccountLike, spender: AccountLike): Promise<number | string> => {
+            return u(await token.use(User(name)).allowance(owner, spender));
         }
 
         const approve = async (token: IERC20, to: AccountLike, amount: number): Promise<boolean | void> => {

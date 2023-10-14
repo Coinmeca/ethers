@@ -32,15 +32,15 @@ export function f(n: number | string): string {
 
 // get address
 export function a(
-    c: SignerLike | AccountLike | AddressString | string | number,
+    c: AccountLike | AddressString | string | number,
     display?: boolean
-): AccountLike | SignerLike | AddressString | string | number {
-    const result =
+): AccountLike | AddressString | string | number {
+    const result: AccountLike | AddressString | string | number =
         (typeof c === 'number' && c == 0
             ? '0x0000000000000000000000000000000000000000'
             : typeof c === 'string' && c !== ''
                 ? c
-                : (c as AccountLike).address) || c;
+                : (c as AccountLike)?.address) || c;
     typeof result === 'string' && display && console.log(_('Address:', 13), result);
     return result;
 }

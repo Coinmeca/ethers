@@ -14,7 +14,7 @@ export interface IERC20Module extends AccountLike {
     balanceOf: (owner: AccountLike) => Promise<number | string>;
     transfer: (to: AccountLike, amount: number) => Promise<boolean | void>;
     transferFrom: (from: AccountLike, to: AccountLike, amount: number) => Promise<boolean | void>;
-    allowance: (owner: AccountLike, spender: any) => Promise<number | string>;
+    allowance: (owner: AccountLike, spender: AccountLike) => Promise<number | string>;
     approve: (spender: AccountLike, amount: number | string) => Promise<boolean | void>;
     faucet: (to: AccountLike, amount: number) => Promise<boolean | void>;
 }
