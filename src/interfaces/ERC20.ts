@@ -11,10 +11,10 @@ export interface IERC20Module extends AccountLike {
     symbol: string;
     decimals: number;
     totalSupply: () => Promise<number>;
-    balanceOf: (owner: AccountLike) => Promise<number | string>;
+    balanceOf: (owner: AccountLike) => Promise<number>;
     transfer: (to: AccountLike, amount: number) => Promise<boolean | void>;
     transferFrom: (from: AccountLike, to: AccountLike, amount: number) => Promise<boolean | void>;
-    allowance: (owner: AccountLike, spender: AccountLike) => Promise<number | string>;
+    allowance: (owner: AccountLike, spender: AccountLike) => Promise<number>;
     approve: (spender: AccountLike, amount: number | string) => Promise<boolean | void>;
     faucet: (to: AccountLike, amount: number) => Promise<boolean | void>;
 }
@@ -28,7 +28,7 @@ export async function ERC20(token: any): Promise<IERC20> {
 
     const module = (token: any, user?: AccountLike): IERC20Module => {
 
-        const balanceOf = async (owner: AccountLike): Promise<number | string> => {
+        const balanceOf = async (owner: AccountLike): Promise<number> => {
             return u(await token.balanceOf(a(owner)));
         };
 
@@ -41,7 +41,7 @@ export async function ERC20(token: any): Promise<IERC20> {
             return await token.transferFrom(a(from), a(to), n(amount));
         };
 
-        const allowance = async (owner: AccountLike, spender: AccountLike): Promise<number | string> => {
+        const allowance = async (owner: AccountLike, spender: AccountLike): Promise<number> => {
             return u(await token.allowance(a(owner), a(spender)));
         }
 

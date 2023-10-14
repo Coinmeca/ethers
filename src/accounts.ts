@@ -52,7 +52,7 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
         if (!address || typeof signer !== 'object') throw error('Not found user: ', name);
 
         const balance = async (token?: IERC20): Promise<any> => {
-            const tokens: IERC20[] | undefined = contracts?.tokens && typeof contracts?.tokens === 'object' ? Object.values(contracts?.tokens) : Array.isArray(contracts?.tokens) && contracts?.tokens || token && [token]
+            const tokens: IERC20[] | undefined = token ? [token] : typeof contracts?.tokens === 'object' ? Object.values(contracts?.tokens) : Array.isArray(contracts?.tokens) ? contracts?.tokens : undefined;
             if (tokens) {
                 console.log(color.lightGray(`--------------------- User: '${name}' Wallet ----------------------`));
                 a(User(name), true);
