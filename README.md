@@ -298,11 +298,11 @@ The owner address is an initial value that will be used as the 'owner' property 
 
 Define here, which diamond files required generating an integrated abi of diamonds. If a diamond contract is used with a duplicate name, it must be identified by providing an artifact name that includes the full path to the diamond.
 
-```
-    diamonds: [
-        'MyDiamond',
-        'contracts/myapp/diamond2/MyDiamond.sol:MyDiamond'
-    ],
+```js
+diamonds: [
+    'MyDiamond',
+    'contracts/myapp/diamond2/MyDiamond.sol:MyDiamond'
+],
 ```
 
 ### `abi`
