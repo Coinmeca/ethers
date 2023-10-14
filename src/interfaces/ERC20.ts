@@ -10,7 +10,7 @@ export interface IERC20Module extends AccountLike {
     name: string;
     symbol: string;
     decimals: number;
-    totalSupply: number;
+    totalSupply: () => Promise<number>;
     balanceOf: (owner: AccountLike) => Promise<number | string>;
     transfer: (to: AccountLike, amount: number) => Promise<boolean | void>;
     transferFrom: (from: AccountLike, to: AccountLike, amount: number) => Promise<boolean | void>;
@@ -24,7 +24,7 @@ export async function ERC20(token: any): Promise<IERC20> {
     const symbol: string = await token.symbol();
     const decimals: number = u(await token.decimals());
     const address: AddressString = await token.getAddress();
-    const totalSupply: number = u(await token.totalSupply());
+    const totalSupply: () => Promise<number> = async () => u(await token.totalSupply());
 
     const module = (token: any, user?: AccountLike): IERC20Module => {
 

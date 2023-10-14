@@ -30,6 +30,7 @@ export async function ERC721(token: any): Promise<IERC721> {
     const name = await token.name();
     const symbol = await token.symbol();
     const address = await token.getAddress();
+    const totalSupply: () => Promise<number> = async () => await token.totalSupply();
 
     const module = (token: any, user?: IUser): IERC721Module => {
         const getId = async (key: string, display?: boolean): Promise<number> => {
@@ -117,10 +118,6 @@ export async function ERC721(token: any): Promise<IERC721> {
             }
             return owner;
         };
-
-        const totalSupply = async (): Promise<Number> => {
-            return await token.totalSupply()
-        }
 
         const transferFrom = async (from: any, to: any, id: number | string): Promise<any> => {
             return await token.transferFrom(a(from), a(to), id);
