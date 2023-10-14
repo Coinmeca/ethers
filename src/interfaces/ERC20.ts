@@ -1,7 +1,6 @@
-import { formatUnits } from "ethers";
 import { a, n, u } from "utils";
 import { signers } from "accounts";
-import type { AccountLike, IUser } from "accounts";
+import type { AccountLike, AddressString, IUser } from "accounts";
 
 export interface IERC20 extends IERC20Module {
     use: (user: IUser) => IERC20Module;
@@ -11,7 +10,7 @@ export interface IERC20Module extends AccountLike {
     name: string;
     symbol: string;
     decimals: number;
-    totalSupply: number | string;
+    totalSupply: number;
     balanceOf: (owner: AccountLike) => Promise<number | string>;
     transfer: (to: AccountLike, amount: number) => Promise<boolean | void>;
     transferFrom: (from: AccountLike, to: AccountLike, amount: number) => Promise<boolean | void>;
@@ -21,11 +20,11 @@ export interface IERC20Module extends AccountLike {
 }
 
 export async function ERC20(token: any): Promise<IERC20> {
-    const name = await token.name();
+    const name: string = await token.name();
     const symbol: string = await token.symbol();
-    const decimals = parseInt(formatUnits(await token.decimals()));
-    const address = await token.getAddress();
-    const totalSupply = u(await token.totalSupply());
+    const decimals: number = u(await token.decimals());
+    const address: AddressString = await token.getAddress();
+    const totalSupply: number = u(await token.totalSupply());
 
     const module = (token: any, user?: AccountLike): IERC20Module => {
 
