@@ -32,7 +32,7 @@ export interface IUser extends AccountLike {
 
 export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | number | symbol]: IERC20 }, [x: string | number | symbol]: object }) {
     if (!signers) {
-        signers = signers || {
+        signers = {
             ...await Promise.all((await ethers.getSigners()).map(async (a: any) => {
                 return a;
             }))
