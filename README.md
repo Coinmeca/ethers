@@ -100,11 +100,11 @@ User('sender').send(METH, User('receiver'), 1000);
 
 async `send(`
 
-- **IERC20**: This is a token contract wrapped in ERC20 provided in the interface.
+- **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of @coinmeca/ethers.
 
-- **IUser**: User will received token that created from Accounts() function. 
+- **IUser**: Target user that is created from Accounts() function. 
 
-- **number**: Amount of will transfer. that will be parse big number with 18 decimals automatically.
+- **number**: Amount of will transfer. That will be parsed to a big number with 18 decimals automatically.
 
 `);`
 
@@ -120,11 +120,11 @@ await User(1).send(Tokens.METH, User(2), 1);
 
 async `approve(`
 
-- **IERC20**: This is a token contract wrapped in ERC20 provided in the interface.
+- **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of @coinmeca/ethers.
 
 - **IUser**: Target user that created from Accounts() function. 
 
-- **number**: Amount for approve. that will be parse big number with 18 decimals automatically.
+- **number**: Amount for approve. That will be parsed to a big number with 18 decimals automatically.
 
 `);`
 
@@ -140,11 +140,11 @@ await User(1).approve(Tokens.METH, User(2), 1);
 
 async `allowance(`
 
-- **IERC20**: This is a token contract wrapped in ERC20 provided in the interface.
+- **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of @coinmeca/ethers.
 
 - **IUser**: Target user that created from Accounts() function. 
 
-- **number**: Amount for allowance. that will be parse big number with 18 decimals automatically.
+- **number**: Amount for allowance. That will be parsed to a big number with 18 decimals automatically.
 
 `);`
 
@@ -173,7 +173,7 @@ a(User(1)); // is same with User(1).address
 
 **`( number ) => Big Numberish`**
 
-It is generally used to upload data from off-chain to on-chain. When entering a number, it is parsed as a Big number with 18 decimals. (e.g. 1000 => 1000000000000000000000)
+It is generally used to upload data from off-chain to on-chain. When entering a number, it will be parsed to a Big number with 18 decimals. (e.g. 1000 => 1000000000000000000000)
 
 ```js
 await ETH.connect(User(1).signer).transfer(a(User(1)), n(1000));
@@ -183,7 +183,7 @@ await ETH.connect(User(1).signer).transfer(a(User(1)), n(1000));
 
 **`( Big Numberish ) => number`**
 
-It is generally used to download data from on-chain to off-chain. When entering a Big number, it is parsed as a number without 18 decimals. (e.g. 1000000000000000000000 => 1000)
+It is generally used to download data from on-chain to off-chain. When entering a Big number, it will be parsed to a number without 18 decimals. (e.g. 1000000000000000000000 => 1000)
 
 ```js
 u(await ETH.totalSupply()); 
