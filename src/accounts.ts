@@ -6,8 +6,6 @@ import { a, f, u, font, color, _ } from "utils";
 import { category, state } from "types/stringify";
 import { error } from "console";
 
-export let signers: any;
-
 export type AddressString = `${'0x'}${string}`;
 
 export interface AccountLike {
@@ -16,6 +14,12 @@ export interface AccountLike {
 }
 
 export type SignerLike = AccountLike | SignerWithAddress | HardhatEthersSigner
+
+export interface Signers {
+    [x: string | number | symbol]: any;
+}
+
+export let signers: Signers;
 
 export interface IUser extends AccountLike {
     name: number | string;
@@ -34,7 +38,7 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
     if (!signers) {
         signers = {
             ...await Promise.all((await ethers.getSigners()).map(async (a: any) => {
-                return a;
+                return a as SignerLike;
             }))
         };
         signers.deployer = signers[0];
