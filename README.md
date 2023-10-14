@@ -96,6 +96,20 @@ User(2).set('receiver');
 User('sender').send(METH, User('receiver'), 1000);
 ```
 
+User 0 is set to the 'deployer' alias by default. Therefore, you can access it immediately as User ('deployer') without any additional work. Therefore, if you assign the 'deployer' alias to another user, you will no longer be able to access User(0) with that alias. At this time, you can access it again using the index 0.
+
+```js
+User('deployer') === User(0)
+```
+
+```js
+User(1).set('deployer');
+User('deployer') !== User(0)
+
+User(0).set('deployer2');
+User('deployer2') === User(0)
+```
+
 ### `send`
 
 async `send(`
