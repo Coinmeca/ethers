@@ -15,7 +15,7 @@ yarn add @coinmeca/ethers -D
 ```js
 import { ethers } from 'hardhat' or '@coinmeca/ethers';
 import { Accounts } from '@coinmeca/ethers/accounts';
-import { ERC20 } from '@coinmeca/ethers/interfaces';
+import { ERC20 } from '@coinmeca/ethers/interfaces/ERC20';
 
 async function something() {
     const METH: = await ERC20(await (await ethers.getContractFactory("MockEthereum")).deploy());
@@ -27,7 +27,7 @@ async function something() {
 ```js
 import { ethers } from 'hardhat' or '@coinmeca/ethers';
 import { Accounts } from '@coinmeca/ethers/accounts';
-import { ERC20 } from '@coinmeca/ethers/interfaces';
+import { ERC20 } from '@coinmeca/ethers/interfaces/ERC20';
 
 async function something() {
     const Tokens = {
@@ -63,7 +63,7 @@ async function something() {
 ```js
 import { ethers } from 'hardhat' or '@coinmeca/ethers';
 import { Accounts } from '@coinmeca/ethers/accounts';
-import { ERC20 } from '@coinmeca/ethers/interfaces';
+import { ERC20 } from '@coinmeca/ethers/interfaces/ERC20';
 
 async function something() {
     const Tokens = {
@@ -423,7 +423,7 @@ async `factory(`
 `);`
 
 ```js
-import { diamond } from '@coinmeca/ethers/diamond';
+import { diamond } from '@coinmeca/ethers';
 
 function deploy() {
     const contract = await diamond.factory(
