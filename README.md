@@ -241,12 +241,27 @@ await repeat(
 
 ### `revert`
 
-**`( number | string ) => void`**
+**`( fn: Function, message?: string, value?: any) => void`**
 
-return an address as a string, from the contract or signer or type that has an `address` property.
+Check whether the intended revert and error occur properly. If revert and error do not occur, it is treated as an error. The results are displayed in a terminal window.
 
 ```js
-a(User(1)); // is same with User(1).address
+await revert(MyContract.use(User('Receiver')).claim(history[0].key));
+```
+
+```js
+await revert(
+    MyContract.use(User('Receiver')).claim(history[0].key),
+    'NO_REWARD_YET' // If it same with your custome error function name on solidity, it could be more helpful.
+);
+```
+
+```js
+await revert(
+    MyContract.use(User('Receiver')).claim(history[0].key),
+    'NO_REWARD_YET', // If it same with your custome error function name on solidity, it could be more helpful.
+    `key: ${history[0].key}`
+);
 ```
 
 # Diamond
