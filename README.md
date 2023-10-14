@@ -414,7 +414,10 @@ function deploy() {
     const contract = await diamond.factory(
         'contracts/myapp/MyDiamond.sol:MyDiamond',
         [
-            address.app,
+            // If your diamond contract's constructor has other args.
+            MyDiamondArg1, // parameter's order has to match with 
+            MyDiamondArg2, // your diamond contract's args order of a constructor.
+            // Diamond cut, args data.
             await diamond.cut(
                 [
                     key: 'myDiamond.app',
