@@ -193,7 +193,7 @@ export function _(x: any, s: number, d: 'l' | 'r' = 'l'): string {
     return result;
 }
 
-export function result(result: boolean, message: string, option: any) {
+export function result(result: boolean, message: string, option?: any) {
     if (result) {
         console.log(
             color.green(font.bold('✓')),
