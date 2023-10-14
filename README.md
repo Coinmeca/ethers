@@ -100,7 +100,7 @@ User('sender').send(METH, User('receiver'), 1000);
 
 async `send(`
 
-- **IERC20**: The name of  diamond that is trying to deploy artifact.
+- **IERC20**: This is a token contract wrapped in ERC20 provided in the interface.
 
 - **IUser**: User will received token that created from Accounts() function. 
 
@@ -120,7 +120,7 @@ await User(1).send(Tokens.METH, User(2), 1);
 
 async `approve(`
 
-- **IERC20**: The name of  diamond that is trying to deploy artifact.
+- **IERC20**: This is a token contract wrapped in ERC20 provided in the interface.
 
 - **IUser**: Target user that created from Accounts() function. 
 
@@ -140,7 +140,7 @@ await User(1).approve(Tokens.METH, User(2), 1);
 
 async `allowance(`
 
-- **IERC20**: The name of  diamond that is trying to deploy artifact.
+- **IERC20**: This is a token contract wrapped in ERC20 provided in the interface.
 
 - **IUser**: Target user that created from Accounts() function. 
 
