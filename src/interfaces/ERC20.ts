@@ -1,6 +1,7 @@
 import { a, n, u } from "utils";
 import { signers } from "accounts";
 import type { AccountLike, AddressString, IUser } from "accounts";
+import { ethers } from "hardhat";
 
 export interface IERC20 extends IERC20Module {
     use: (user: IUser) => IERC20Module;
@@ -20,6 +21,8 @@ export interface IERC20Module extends AccountLike {
 }
 
 export async function ERC20(token: any): Promise<IERC20> {
+    typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync('../artifacts/ERC20.sol/ERC20.json')), token) : token;
+
     const name: string = await token.name();
     const symbol: string = await token.symbol();
     const decimals: number = u(await token.decimals());

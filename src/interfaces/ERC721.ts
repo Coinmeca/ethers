@@ -1,3 +1,4 @@
+import { ethers } from "hardhat";
 import { AddressLike } from "ethers";
 import { AccountLike, IUser } from "accounts";
 import { a, color } from "utils";
@@ -27,6 +28,9 @@ export interface IERC721Module extends AccountLike {
 }
 
 export async function ERC721(token: any): Promise<IERC721> {
+    typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync('../artifacts/ERC20.sol/ERC20.json')), token) : token;
+    token
+
     const name = await token.name();
     const symbol = await token.symbol();
     const address = await token.getAddress();
