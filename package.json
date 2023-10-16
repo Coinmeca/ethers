@@ -1,7 +1,7 @@
 {
     "name": "@coinmeca/ethers",
     "description": "Solidty helpers and utilities for using ethers.",
-    "version": "1.4.41",
+    "version": "1.4.5",
     "keywords": [
         "coinmeca",
         "smart-contract",
@@ -36,7 +36,7 @@
         ".": "./dist/index.js",
         "./*": "./dist/*.js",
         "./interfaces": "./dist/interfaces/index.js",
-        "./interfaces/*":"./dist/interfaces/*.js"
+        "./interfaces/*": "./dist/interfaces/*.js"
     },
     "typesVersions": {
         "*": {
@@ -76,10 +76,10 @@
     },
     "peerDependenciesMeta": {
         "ts-node": {
-        "optional": true
+            "optional": true
         },
         "typescript": {
-        "optional": true
+            "optional": true
         }
     },
     "commitlint": {
