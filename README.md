@@ -175,12 +175,17 @@ await User(1).approve(Tokens.METH, User(2), 1);
 
 ### `a`
 
-**`( (contract || signer): {address: string} ) => string`**
+**`( (contract || signer || string || number ): {address: string} ) => string`**
 
 return an address as a string, from the contract or signer or type that has an `address` property.
 
 ```js
+a(MyContract); // is same with MyContract.address
 a(User(1)); // is same with User(1).address
+a(0);       // zero address: '0x0000000000000000000000000000000000000000'
+
+a('0x7907ca011864321868f397516ce37c959f25f8dd');
+// => 0x7907ca011864321868f397516ce37c959f25f8dd
 ```
 
 ### `n`
