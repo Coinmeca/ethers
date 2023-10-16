@@ -168,6 +168,7 @@ export async function ERC721(token: any): Promise<IERC721> {
             getApproved,
             setApprovalForAll,
             isApprovedForAll,
+            contract: token,
         }
     }
 
