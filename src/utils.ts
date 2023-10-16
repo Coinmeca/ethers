@@ -15,15 +15,14 @@ export async function repeat(fn: (i: number) => Promise<void>, times: number) {
 }
 
 // number to big number
-export function n(n: number | string): BigNumberish {
-    if (typeof n === 'string') n?.replaceAll(',', '');
-    return ethers.parseUnits(n?.toString());
+export function n(number: number | string, decimals?: number): BigNumberish {
+    if (typeof number === 'string') number?.replaceAll(',', '');
+    return ethers.parseUnits(number?.toString(), decimals);
 }
 
 // big number to number
-export function u(n: BigNumberish, x?: number): number {
-    const num = parseFloat(ethers.formatUnits(n));
-    return x ? parseFloat(num.toFixed(x)) : num;
+export function u(number: BigNumberish, decimals?: number): number {
+    return parseFloat(ethers.formatUnits(number, decimals));
 }
 
 export function f(n: number | string): string {

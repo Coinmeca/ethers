@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { AddressLike } from "ethers";
-import { AccountLike, IUser } from "accounts";
+import { AccountLike, AddressString, IUser } from "accounts";
 import { a, color } from "utils";
 
 export interface IERC721 extends IERC721Module {
@@ -10,7 +10,7 @@ export interface IERC721 extends IERC721Module {
 export interface IERC721Module extends AccountLike {
     name: string;
     symbol: string;
-    totalSupply: () => Promise<Number>;
+    totalSupply: Function | number;
     getId: (key: string, display?: boolean) => Promise<number>;
     getKey: (id: number, display?: boolean) => Promise<string>;
     tokenURI: (id: number | string, display?: boolean) => Promise<string>;
@@ -30,10 +30,10 @@ export interface IERC721Module extends AccountLike {
 export async function ERC721(token: any): Promise<IERC721> {
     typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, '../artifacts/ERC20.sol/ERC20.json'))), token) : token;
 
-    const name = await token.name();
-    const symbol = await token.symbol();
-    const address = await token.getAddress();
-    const totalSupply: () => Promise<number> = async () => await token.totalSupply();
+    const name: string = typeof token?.name === 'function' ? await token?.name() : typeof token?.name === 'string' ? token?.name : null;
+    const symbol: string = typeof token?.symbol === 'function' ? await token?.symbol() : typeof token?.symbol === 'string' ? token?.symbol : null;
+    const address: AddressString = typeof token?.getAddress === 'function' ? await token?.getAddress() : typeof token?.address === 'string' ? token?.address : null;
+    const totalSupply: Function | number = typeof token?.totalSupply === 'function' ? async (): Promise<number> => await token?.totalSupply() : typeof token?.totalSupply === 'string' ? parseFloat(token?.totalSupply) : typeof token?.totalSupply === 'number' ? token?.totalSupply : null
 
     const module = (token: any, user?: IUser): IERC721Module => {
         const getId = async (key: string, display?: boolean): Promise<number> => {
