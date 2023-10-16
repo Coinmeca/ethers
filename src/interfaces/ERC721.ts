@@ -10,30 +10,29 @@ export interface IERC721 extends IERC721Module {
 export interface IERC721Module extends AccountLike {
     name: string;
     symbol: string;
-    totalSupply: Function | number;
     getId: (key: string, display?: boolean) => Promise<number>;
-    getKey: (id: number, display?: boolean) => Promise<string>;
+    getKey: (id: number | string, display?: boolean) => Promise<string>;
     tokenURI: (id: number | string, display?: boolean) => Promise<string>;
     tokenIMG: (id: number | string, display?: boolean) => Promise<string>;
+    totalSupply: () => Promise<number>;
     balanceOf: (owner: AccountLike, display?: boolean) => Promise<number>;
     tokensOf: (owner: AccountLike, display?: boolean) => Promise<number[]>;
     keysOf: (owner: AccountLike, display?: boolean) => Promise<string[]>;
     ownerOf: (id: number | string, display?: boolean) => Promise<AddressLike>;
     transferFrom: (from: AccountLike, to: AccountLike, id: number | string) => Promise<any>;
     safeTransferFrom: (from: AccountLike, to: AccountLike, id: number | string, data?: any) => Promise<any>;
-    approve: (to: AccountLike, id: number) => Promise<any>;
+    approve: (to: AccountLike, id: number | string) => Promise<any>;
     getApproved: (id: number | string) => Promise<any>;
     setApprovalForAll: (operator: AccountLike, approve: boolean) => Promise<any>;
     isApprovedForAll: (owner: AccountLike, operator: AccountLike) => Promise<any>;
 }
 
 export async function ERC721(token: any): Promise<IERC721> {
-    typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, '../artifacts/ERC20.sol/ERC20.json'))), token) : token;
+    token = typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, '../artifacts/ERC20.sol/ERC20.json'))), token) : token;
 
     const name: string = typeof token?.name === 'function' ? await token?.name() : typeof token?.name === 'string' ? token?.name : null;
     const symbol: string = typeof token?.symbol === 'function' ? await token?.symbol() : typeof token?.symbol === 'string' ? token?.symbol : null;
     const address: AddressString = typeof token?.getAddress === 'function' ? await token?.getAddress() : typeof token?.address === 'string' ? token?.address : null;
-    const totalSupply: Function | number = typeof token?.totalSupply === 'function' ? async (): Promise<number> => await token?.totalSupply() : typeof token?.totalSupply === 'string' ? parseFloat(token?.totalSupply) : typeof token?.totalSupply === 'number' ? token?.totalSupply : null
 
     const module = (token: any, user?: IUser): IERC721Module => {
         const getId = async (key: string, display?: boolean): Promise<number> => {
@@ -46,7 +45,7 @@ export async function ERC721(token: any): Promise<IERC721> {
             return id;
         };
 
-        const getKey = async (id: number, display?: boolean): Promise<string> => {
+        const getKey = async (id: number | string, display?: boolean): Promise<string> => {
             const key: string = await token.getKey(id);
             if (display) {
                 console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
@@ -76,6 +75,10 @@ export async function ERC721(token: any): Promise<IERC721> {
                 console.log(color.lightGray(`--------------------------------------------------------------`));
             }
             return img;
+        }
+
+        const totalSupply = async (): Promise<number> => {
+            return await token?.totalSupply();
         }
 
         const balanceOf = async (owner: any, display?: boolean): Promise<number> => {
@@ -132,7 +135,7 @@ export async function ERC721(token: any): Promise<IERC721> {
                 : await token.safeTransferFrom(a(from), a(to), id, data);
         }
 
-        const approve = async (to: AccountLike, id: number): Promise<any> => {
+        const approve = async (to: AccountLike, id: number | string): Promise<any> => {
             return await token.approve(a(to), id);
         };
 

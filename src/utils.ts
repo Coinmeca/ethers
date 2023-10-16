@@ -22,7 +22,7 @@ export function n(number: number | string, decimals?: number): BigNumberish {
 
 // big number to number
 export function u(number: BigNumberish, decimals?: number): number {
-    return parseFloat(ethers.formatUnits(number, decimals));
+    return parseFloat(decimals ? ethers.formatUnits(number, decimals) : ethers.formatUnits(number));
 }
 
 export function f(n: number | string): string {

@@ -51,27 +51,29 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
 
         if (!address || typeof signer !== 'object') throw error('Not found user: ', name);
 
-        const balance = async (token?: IERC20): Promise<any> => {
+        const balance = async (token?: IERC20, display?: boolean): Promise<any> => {
             const tokens: IERC20[] | undefined = token ? [token] : typeof contracts?.tokens === 'object' ? Object.values(contracts?.tokens) : Array.isArray(contracts?.tokens) ? contracts?.tokens : undefined;
             if (tokens) {
-                console.log(color.lightGray(`--------------------- User: '${name}' Wallet ----------------------`));
-                a(User(name), true);
-                console.log(color.lightGray(`-------------------------------------------------------------`))
-                if (tokens?.length > 0) {
-                    for (let i = 0; i < tokens?.length; i++) {
-                        if (tokens[i]) {
-                            const symbol = tokens[i].symbol;
-                            const balance = await tokens[i].balanceOf({ address });
-                            if (symbol == 'MECA') console.log(color.lightGray(`-------------------------------------------------------------`))
-                            console.log(`${_(`${symbol}:`, 14)}${font.bold(color.yellow(f(balance)))}`);
+                let token: number = await tokens[0].balanceOf({ address });
+                if (tokens?.length > 1 || (tokens?.length === 1 && display)) {
+                    console.log(color.lightGray(`--------------------- User: '${name}' Wallet ----------------------`));
+                    a(User(name), true);
+                    console.log(color.lightGray(`-------------------------------------------------------------`))
+                    if (tokens?.length > 0) {
+                        for (let i = 0; i < tokens?.length; i++) {
+                            if (tokens[i]) {
+                                const symbol = tokens[i].symbol;
+                                const balance = (tokens?.length === 1 && i === 0) ? token : await tokens[0].balanceOf({ address });
+                                if (symbol == 'MECA') console.log(color.lightGray(`-------------------------------------------------------------`))
+                                console.log(`${_(`${symbol}:`, 14)}${font.bold(color.yellow(f(balance)))}`);
+                            }
                         }
+                    } else {
+                        console.log(`There are no tokens deployed yet.`);
                     }
-                } else {
-                    console.log(`There are no tokens deployed yet.`);
+                    console.log(color.lightGray(`-------------------------------------------------------------`));
                 }
-                console.log(color.lightGray(`-------------------------------------------------------------`));
-
-                return tokens.length == 1 ? tokens[0] : tokens;
+                return tokens?.length == 1 ? token : tokens;
             }
         };
 
