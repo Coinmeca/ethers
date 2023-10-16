@@ -28,8 +28,7 @@ export interface IERC721Module extends AccountLike {
 }
 
 export async function ERC721(token: any): Promise<IERC721> {
-    typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync('../artifacts/ERC20.sol/ERC20.json')), token) : token;
-    token
+    typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, '../artifacts/ERC20.sol/ERC20.json'))), token) : token;
 
     const name = await token.name();
     const symbol = await token.symbol();
