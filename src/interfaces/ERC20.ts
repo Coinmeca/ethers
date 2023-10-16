@@ -67,7 +67,8 @@ export async function ERC20(token: any): Promise<IERC20> {
             transferFrom,
             allowance,
             approve,
-            faucet
+            faucet,
+            contract: token,
         }
     }
 
