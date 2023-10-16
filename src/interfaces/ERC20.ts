@@ -11,7 +11,7 @@ export interface IERC20Module extends AccountLike {
     name: string;
     symbol: string;
     decimals: number;
-    totalSupply: Function | number;
+    totalSupply: () => Promise<number>;
     balanceOf: (owner: AccountLike) => Promise<number>;
     transfer: (to: AccountLike, amount: number) => Promise<boolean | void>;
     transferFrom: (from: AccountLike, to: AccountLike, amount: number) => Promise<boolean | void>;
@@ -21,21 +21,23 @@ export interface IERC20Module extends AccountLike {
 }
 
 export async function ERC20(token: any): Promise<IERC20> {
-    typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, '../artifacts/ERC20.sol/ERC20.json'))), token) : token;
+    token = typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, '../artifacts/ERC20.sol/ERC20.json'))), token) : token;
 
     const name: string = typeof token?.name === 'function' ? await token?.name() : typeof token?.name === 'string' ? token?.name : null;
     const symbol: string = typeof token?.symbol === 'function' ? await token?.symbol() : typeof token?.symbol === 'string' ? token?.symbol : null;
     const decimals: number = typeof token?.decimals === 'function' ? await token?.decimals() : typeof token?.decimals === 'number' ? token?.decimals : null;
     const address: AddressString = typeof token?.getAddress === 'function' ? await token?.getAddress() : typeof token?.address === 'string' ? token?.address : null;
-    const totalSupply: Function | number = typeof token?.totalSupply === 'function' ? async (): Promise<number> => u(await token?.totalSupply(), decimals) : typeof token?.totalSupply === 'string' ? parseFloat(token?.totalSupply) : typeof token?.totalSupply === 'number' ? token?.totalSupply : null
 
     const module = (token: any, user?: AccountLike): IERC20Module => {
+        const totalSupply = async (): Promise<number> => {
+            return u(await token?.totalSupply(), decimals);
+        }
 
         const balanceOf = async (owner: AccountLike): Promise<number> => {
             return u(await token.balanceOf(a(owner)), decimals);
         };
 
-        const transfer = async (to: AccountLike, amount: number): Promise<boolean | void> => {
+        const transfer = async (to: AccountLike, amount: number | string): Promise<boolean | void> => {
             return await token.transfer(a(to), n(amount, decimals));
         };
 
@@ -48,11 +50,11 @@ export async function ERC20(token: any): Promise<IERC20> {
             return u(await token.allowance(a(owner), a(spender)), decimals);
         }
 
-        const approve = (spender: AccountLike, amount: number | string): Promise<boolean | void> => {
-            return token.approve(a(spender), n(amount, decimals));
+        const approve = async (spender: AccountLike, amount: number | string): Promise<boolean | void> => {
+            return await token.approve(a(spender), n(amount, decimals));
         };
 
-        const faucet = async (to: AccountLike, amount: number): Promise<boolean | void> => {
+        const faucet = async (to: AccountLike, amount: number | string): Promise<boolean | void> => {
             return await token.connect(signers[0]).transfer(a(to), n(amount, decimals));
         }
 
