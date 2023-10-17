@@ -103,7 +103,7 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
         const getHistory = async (app?: any): Promise<any[]> => {
             const App = app || contracts?.app;
             if (App) {
-                return await App.historyGetAll(User(name));
+                return await App.historyGetAll(a(User(name)));
             }
             return [];
         }
