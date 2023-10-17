@@ -1,11 +1,12 @@
-import { ethers, network } from 'hardhat';
-import { time } from '@nomicfoundation/hardhat-network-helpers';
-import { BigNumberish, toNumber } from 'ethers';
-import { AccountLike, AddressString, SignerLike } from 'accounts';
-import { expect } from 'chai';
+
 import { env } from 'process';
 import { error } from 'console';
-import { mkdirSync, writeFile } from 'fs';
+import { expect } from 'chai';
+import { ethers, network } from 'hardhat';
+import { BigNumberish, toNumber } from 'ethers';
+import { AccountLike, AddressString } from 'accounts';
+import { mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { time } from '@nomicfoundation/hardhat-network-helpers';
 
 // repeat
 export async function repeat(fn: (i: number) => Promise<void>, times: number) {
@@ -196,10 +197,9 @@ export function result(result: boolean, message: string, option?: any) {
     if (result) {
         console.log(
             color.green(font.bold('✓')),
-            color.green(` ${message || 'Success'}\n${option && '\n'}`),
-            option && Array.isArray(option)
-                ? option.map((o) => { console.log(color.lightGray(' - ' + o), '\n') }) : option
+            color.green(` ${message || 'Success'}\n`),
         );
+        (option && option[0] && Array.isArray(option)) ? option.map((o) => { console.log(color.lightGray(' - ' + o), '\n') }) : console.log(color.lightGray(option))
     } else {
         console.log(color.red(font.bold('❌')), color.red(` ${message || 'Failure'}\n\n`), option && color.lightGray(option), '\n');
     }
@@ -223,18 +223,16 @@ export function saveAddress(result: any) {
     const name = env.DEPLOY_INFO || 'deploy-info.json';
     const file = `${path}/${name}`;
 
-    writeFile(
-        file,
-        JSON.stringify({ network: n.capitalize, contracts: result?.contracts ? { ...result?.contracts } : result }, null, 4),
-        (e) => {
-            if (e?.message.includes('no such file or directory')) {
-                mkdirSync(path!, { recursive: true });
-                saveAddress(result);
-            } else if (e) {
-                console.error(e);
-            }
+    try {
+        writeFileSync(file, JSON.stringify({ network: n.capitalize, contracts: result?.contracts ? { ...result?.contracts } : result }, null, 4));
+    } catch (e: any) {
+        if (e?.toString().includes('no such file or directory')) {
+            mkdirSync(path!, { recursive: true });
+            saveAddress(result);
+        } else if (e) {
+            console.error(e);
         }
-    );
+    }
 }
 
 export function addAddress(contract: string, address: string) {
@@ -251,7 +249,7 @@ export function loadAddress() {
     const file = `${path}/${name}`;
 
     try {
-        return JSON.parse(require('fs').readFileSync(file));
+        return JSON.parse(readFileSync(file, 'utf8'));
     } catch {
         return undefined;
     }
