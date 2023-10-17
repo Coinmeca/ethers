@@ -45,12 +45,11 @@ async function something() {
 ### `balance`
 
 ```js
-    const { User } = await Accounts({ tokens: Tokens });
+const { User } = await Accounts({ tokens: Tokens });
 
-    // balance of user 1 about all the tokens that registered at initialized
-    await User(1).balance();
+// balance of user 1 about all the tokens that registered at initialized
+await User(1).balance();
 ```
-
 
 ```js
     // METH balance of user 1
@@ -77,7 +76,7 @@ async function something() {
     // Earn 1000(auto parsed big number with 18 decimals) tokens from default hardhat signer no.1.
     await User(1).faucet(Token.METH, 1000);
 
-    // Or it can be used with new token deploy. 
+    // Or it can be used with new token deploy.
     await User(2).faucet(
         await ERC20(await (await ethers.getContractFactory("MockUsdcToken")).deploy()),
         1000
@@ -90,85 +89,78 @@ async function something() {
 Set an alias to access a specific user as a string value from index number.
 
 ```js
-User(1).set('sender');
-User(2).set('receiver');
+User(1).set("sender");
+User(2).set("receiver");
 
-User('sender').send(METH, User('receiver'), 1000);
+User("sender").send(METH, User("receiver"), 1000);
 ```
 
 User 0 is set to the 'deployer' alias by default. Therefore, you can access it immediately as User ('deployer') without any additional work. Therefore, if you assign the 'deployer' alias to another user, you will no longer be able to access User(0) with that alias. At this time, you can access it again using the index 0.
 
 ```js
-User('deployer') === User(0)
+User("deployer") === User(0);
 ```
 
 ```js
-User(1).set('deployer');
-User('deployer') !== User(0)
+User(1).set("deployer");
+User("deployer") !== User(0);
 
-User(0).set('deployer2');
-User('deployer2') === User(0)
+User(0).set("deployer2");
+User("deployer2") === User(0);
 ```
 
 ### `send`
 
 async `send(`
 
-- **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of @coinmeca/ethers.
+-   **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of @coinmeca/ethers.
 
-- **IUser**: Target user that is created from Accounts() function. 
+-   **IUser**: Target user that is created from Accounts() function.
 
-- **number**: Amount of will transfer. That will be parsed to a big number with 18 decimals automatically.
+-   **number**: Amount of will transfer. That will be parsed to a big number with 18 decimals automatically.
 
 `);`
 
 It is the same function as 'transfer' in the token contract.
 
 ```js
-
 await User(1).send(Tokens.METH, User(2), 1);
-
 ```
 
 ### `approve`
 
 async `approve(`
 
-- **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of @coinmeca/ethers.
+-   **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of @coinmeca/ethers.
 
-- **IUser**: Target user that created from Accounts() function. 
+-   **IUser**: Target user that created from Accounts() function.
 
-- **number**: Amount for approve. That will be parsed to a big number with 18 decimals automatically.
+-   **number**: Amount for approve. That will be parsed to a big number with 18 decimals automatically.
 
 `);`
 
 It is the same function as 'approve' in the token contract.
 
 ```js
-
 await User(1).approve(Tokens.METH, User(2), 1);
-
 ```
 
 ### `allowance`
 
 async `allowance(`
 
-- **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of @coinmeca/ethers.
+-   **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of @coinmeca/ethers.
 
-- **IUser**: Target user that created from Accounts() function. 
+-   **IUser**: Target user that created from Accounts() function.
 
-- **number**: Amount for allowance. That will be parsed to a big number with 18 decimals automatically.
+-   **number**: Amount for allowance. That will be parsed to a big number with 18 decimals automatically.
 
 `);`
-
 
 It is the same function as 'allowance' in the token contract.
 
 ```js
-
 await User(1).approve(Tokens.METH, User(2), 1);
-
 ```
 
 # Utils
@@ -182,9 +174,9 @@ return an address as a string, from the contract or signer or type that has an `
 ```js
 a(MyContract); // is same with MyContract.address
 a(User(1)); // is same with User(1).address
-a(0);       // zero address: '0x0000000000000000000000000000000000000000'
+a(0); // zero address: '0x0000000000000000000000000000000000000000'
 
-a('0x7907ca011864321868f397516ce37c959f25f8dd');
+a("0x7907ca011864321868f397516ce37c959f25f8dd");
 // => 0x7907ca011864321868f397516ce37c959f25f8dd
 ```
 
@@ -205,7 +197,7 @@ await ETH.connect(User(1).signer).transfer(a(User(1)), n(1000));
 It is generally used to download data from on-chain to off-chain. When entering a Big number, it will be parsed to a number without 18 decimals. (e.g. 1000000000000000000000 => 1000)
 
 ```js
-u(await ETH.totalSupply()); 
+u(await ETH.totalSupply());
 ```
 
 ### `t`
@@ -215,11 +207,11 @@ u(await ETH.totalSupply());
 Converts the entered numeric value to convert as a duration and makes time pass in the code.
 
 ```js
-t('now')    // 1697258409 = current time.
-t(86400)    // 86400 = 24 hours
-t(1, 'd')   // 86400 = 1 day = 24 hours
-t(3, 'h')   // 10800 = 3 hours 
-t(3)        // 3 = 3 seconds 
+t("now"); // 1697258409 = current time.
+t(86400); // 86400 = 24 hours
+t(1, "d"); // 86400 = 1 day = 24 hours
+t(3, "h"); // 10800 = 3 hours
+t(3); // 3 = 3 seconds
 ```
 
 ### `duration`
@@ -229,7 +221,7 @@ t(3)        // 3 = 3 seconds
 If you enter the UnixTimeStamp value as the starting point, the number of seconds that have elapsed based on the current time is returned in numeric format.
 
 ```js
-duraiont(1697258409) // now - 1697258409
+duraiont(1697258409); // now - 1697258409
 ```
 
 ### `ft`
@@ -239,10 +231,9 @@ duraiont(1697258409) // now - 1697258409
 Abbreviation for format time. If you enter a numeric value such as duration, the converted value of the period is returned in human-readable string format.
 
 ```js
-ft(21646);  // 6h 00m 46s
+ft(21646); // 6h 00m 46s
 ft(88_632); // 1d 37m 12s
 ```
-
 
 ### `repeat`
 
@@ -252,8 +243,7 @@ A specific function or transaction is repeated the number of times entered.
 
 ```js
 await repeat(
-    async (i: number) =>
-    await User(1).send(Tokens.METH, User(2), 1), // transaction to repeat
+    async (i: number) => await User(1).send(Tokens.METH, User(2), 1), // transaction to repeat
     5 // repeat times
 );
 ```
@@ -265,20 +255,20 @@ await repeat(
 Check whether the intended revert and error occur properly. If revert and error do not occur, it is treated as an error. The results are displayed in a terminal window.
 
 ```js
-await revert(MyContract.use(User('Receiver')).claim(history[0].key));
+await revert(MyContract.use(User("Receiver")).claim(history[0].key));
 ```
 
 ```js
 await revert(
-    MyContract.use(User('Receiver')).claim(history[0].key),
-    'NO_REWARD_YET' // If it same with your custome error function name on solidity, it could be more helpful.
+    MyContract.use(User("Receiver")).claim(history[0].key),
+    "NO_REWARD_YET" // If it same with your custome error function name on solidity, it could be more helpful.
 );
 ```
 
 ```js
 await revert(
-    MyContract.use(User('Receiver')).claim(history[0].key),
-    'NO_REWARD_YET', // If it same with your custome error function name on solidity, it could be more helpful.
+    MyContract.use(User("Receiver")).claim(history[0].key),
+    "NO_REWARD_YET", // If it same with your custome error function name on solidity, it could be more helpful.
     `key: ${history[0].key}`
 );
 ```
@@ -295,24 +285,21 @@ It can change the initial environment settings by setting the config file separa
 export const config = {
     deployer: {
         address: process.env.DEPLOYER,
-        privateKey: process.env.PRIVATE_KEY
+        privateKey: process.env.PRIVATE_KEY,
     },
     artifact: {
-        diamonds: [
-            'MyDiamond',
-            'contracts/myapp/diamond2/MyDiamond.sol:MyDiamond'
-        ],
+        diamonds: ["MyDiamond", "contracts/myapp/diamond2/MyDiamond.sol:MyDiamond"],
         abi: {
-            include: ['facet', 'facets', 'shared'],
-            exclude: ['Data', 'Facet'],
-            path: 'artifacts/.diamonds',
-            file: 'diamond'
-        }
+            include: ["facet", "facets", "shared"],
+            exclude: ["Data", "Facet"],
+            path: "artifacts/.diamonds",
+            file: "diamond",
+        },
     },
     loupe: {
-        path: 'artifacts/.diamonds',
-        file: 'facet'
-    }
+        path: "artifacts/.diamonds",
+        file: "facet",
+    },
 };
 
 export default config;
@@ -328,7 +315,7 @@ The owner address is an initial value that will be used as the 'owner' property 
 
 ### `artifacts`
 
-**`diamonds`** :  `string[]`
+**`diamonds`** : `string[]`
 
 Define here, which diamond files required generating an integrated abi of diamonds. If a diamond contract is used with a duplicate name, it must be identified by providing an artifact name that includes the full path to the diamond.
 
@@ -390,7 +377,7 @@ If there is no artifact not included in the filter among this result of artifact
 
 **`exclude`**: `string[]` or `[`I${DiamondName}`]` as default (interface with given diamond name).
 
-The words defined in the `exclude` property will be used for excluding some artifacts in the final result. 
+The words defined in the `exclude` property will be used for excluding some artifacts in the final result.
 
 In the path of the diamond, If there are some other contract files that those not the diamond, have to be defined into the exclude filter. If not, it will not work correctly because of cannot recognize what is the diamond in those files.
 
@@ -409,19 +396,19 @@ In the path of the diamond, If there are some other contract files that those no
 
 Defines the path that will generate artifacts incorporating abi for a specific diamond. The default is to create a diamond artifact in the '.diamond' folder under the 'artifacts' folder in the project root path.
 
-- `file`: `string` or ``.diamond`` as default.
+-   `file`: `string` or `.diamond` as default.
 
 Add a suffix to the name of the file to identify the diamond artifact file that integrates abi. The default is 'diamond'. (Example: MyApp.diamond.sol)
 
 **`loupe`**
 
-After deployment a diamond, the information on the facets registered in the diamond and its selectors is exported to a file. 
+After deployment a diamond, the information on the facets registered in the diamond and its selectors is exported to a file.
 
 **`path`**: `string` or `artifacts/.diamond` as default.
 
 By default, it uses the same path as the diamond artifacts path. (artifacts/.diamond)
 
-- `file`: `string` or ``.diamond`` as default.
+-   `file`: `string` or `.diamond` as default.
 
 After deploying the Diamond contract, add a suffix to the file name to identify the file from which you extracted the facet information registered in Diamond. The default is 'facet'. (e.g. MyApp.facets.sol)
 
@@ -433,11 +420,11 @@ This feature makes diamond contract deployment easier. Each time this function i
 
 async `factory(`
 
-- **artifacts**: The name of  diamond that is trying to deploy artifact.
+-   **artifacts**: The name of diamond that is trying to deploy artifact.
 
-- **cut data**: Diamond cut data for diamond. ( {key: string, data: [ facet artifacts ]})
+-   **cut data**: Diamond cut data for diamond. ( {key: string, data: [ facet artifacts ]})
 
-- **init args**: Values for diamond args for initializing.
+-   **init args**: Values for diamond args for initializing.
 
 `);`
 
@@ -449,20 +436,18 @@ function deploy() {
         'contracts/myapp/MyDiamond.sol:MyDiamond',
         [
             // If your diamond contract's constructor has other args.
-            MyDiamondArg1, // parameter's order has to match with 
+            MyDiamondArg1, // parameter's order has to match with
             MyDiamondArg2, // your diamond contract's args order of a constructor.
             // Diamond cut, args data.
-            await diamond.cut(
-                [
-                    key: 'myDiamond.app',
-                    data: [
-                        'contracts/myapp/facets/Mint.sol:Mint',
-                        'contracts/myapp/facets/Burn.sol:Mint',
-                        'contracts/myapp/facets/Apporval.sol:Apporval',
-                        'contracts/myapp/facets/Transfer.sol:Transfer'
-                    ]
+            [
+                key: 'myDiamond.app',
+                data: [
+                    'contracts/myapp/facets/Mint.sol:Mint',
+                    'contracts/myapp/facets/Burn.sol:Mint',
+                    'contracts/myapp/facets/Apporval.sol:Apporval',
+                    'contracts/myapp/facets/Transfer.sol:Transfer'
                 ]
-            ),
+            ],
             {
                 owner: addressOf.owner,
                 init: addressOf.initContract,
@@ -474,7 +459,6 @@ function deploy() {
 
 ```
 
-
 ### `abi`
 
 **`( artifactName: string ) => void`**
@@ -482,9 +466,9 @@ function deploy() {
 If you pass the diamond's artifact name, it finds the facets that need to be integrated into the specific diamond in a path and creates an integrated artifact.
 
 ```js
-import { diamond } from '@coinmeca/ethers';
+import { diamond } from "@coinmeca/ethers";
 
-await diamond.abi('contracts/myapp/MyDiamond.sol:MyDiamond');
+await diamond.abi("contracts/myapp/MyDiamond.sol:MyDiamond");
 ```
 
 ### `cut`
@@ -492,18 +476,73 @@ await diamond.abi('contracts/myapp/MyDiamond.sol:MyDiamond');
 lightweight-diamond If you pass in diamond cut information that matches the configuration, the diamond cut data needed when factory the diamond is generated and returned.
 
 ```js
-
-import { diamond } from '@coinmeca/ethers';
+import { diamond } from "@coinmeca/ethers";
 
 await diamond.cut([
     {
-        key: 'myDiamond.app',
+        key: "myDiamond.app",
         data: [
-            'contracts/myapp/facets/Mint.sol:Mint',
-            'contracts/myapp/facets/Burn.sol:Mint',
-            'contracts/myapp/facets/Apporval.sol:Apporval',
-            'contracts/myapp/facets/Transfer.sol:Transfer'
-        ]
-    }
+            "contracts/myapp/facets/Mint.sol:Mint",
+            "contracts/myapp/facets/Burn.sol:Mint",
+            "contracts/myapp/facets/Apporval.sol:Apporval",
+            "contracts/myapp/facets/Transfer.sol:Transfer",
+        ],
+    },
 ]);
+```
+
+Or it can be used like this with existing ethers library.
+
+```js
+import { diamond } from "@coinmeca/ethers";
+
+const deploy = () =>{
+    await ethers.getContractAt(
+        "myDiamond",
+        await diamond.cut([
+            {
+                key: "myDiamond.app",
+                data: [
+                    "contracts/myapp/facets/Mint.sol:Mint",
+                    "contracts/myapp/facets/Burn.sol:Mint",
+                    "contracts/myapp/facets/Apporval.sol:Apporval",
+                    "contracts/myapp/facets/Transfer.sol:Transfer",
+                ],
+            },
+        ]),
+        {
+            owner: addressOf.owner,
+            init: addressOf.initContract,
+            initCalldata: addressOf.initData
+        }
+    );
+}
+```
+
+If the situation needs diamond abi when using the existing ethers library, it also can be used like this.
+
+```js
+import { diamond } from "@coinmeca/ethers";
+
+const deploy = () =>{
+    await ethers.getContractAt(
+        "myDiamond",
+        await diamond.cut([
+            {
+                key: "myDiamond.app",
+                data: [
+                    "contracts/myapp/facets/Mint.sol:Mint",
+                    "contracts/myapp/facets/Burn.sol:Mint",
+                    "contracts/myapp/facets/Apporval.sol:Apporval",
+                    "contracts/myapp/facets/Transfer.sol:Transfer",
+                ],
+            },
+        ]),
+        {
+            owner: addressOf.owner,
+            init: addressOf.initContract,
+            initCalldata: addressOf.initData
+        }
+    );
+}
 ```
