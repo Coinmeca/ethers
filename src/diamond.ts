@@ -1,14 +1,12 @@
-import { ethers, artifacts } from 'hardhat';
-import { Artifact, HardhatRuntimeEnvironment, RunSuperFunction, TaskArguments } from 'hardhat/types';
-import { subtask } from 'hardhat/config';
-import { HardhatPluginError } from 'hardhat/plugins';
+import { mkdirSync, writeFile } from 'fs';
 import { createHash } from 'crypto';
+import { ethers, artifacts } from 'hardhat';
+import { subtask } from 'hardhat/config';
+import { Artifact, HardhatRuntimeEnvironment, RunSuperFunction, TaskArguments } from 'hardhat/types';
 import { ResolvedFile } from 'hardhat/internal/solidity/resolver';
 import { CompilationJob } from 'hardhat/internal/solidity/compilation-job';
 import { TASK_COMPILE_SOLIDITY_COMPILE_JOBS } from 'hardhat/builtin-tasks/task-names';
-
 import { font, color, _ } from './utils';
-import { mkdirSync, writeFile } from 'fs';
 
 export const FacetCutAction = { Add: 0, Replace: 1, Remove: 2 };
 
@@ -138,26 +136,22 @@ class abiCompilationJob extends CompilationJob {
 // };
 
 
-async function __createArtifact(contract: string, contracts?: string[]) {
-    contracts = (contracts || (await artifacts.getAllFullyQualifiedNames())).filter((f: string) => !f.includes('.diamond'));
+async function __createArtifact(contract: string, facets?: string[]) {
+    const artifactsList: string[] = (await artifacts.getAllFullyQualifiedNames()).filter((f: string) => !f.includes('.diamond'));
     const artifactName: string = contract + (contract.includes(':') ? '' : '.sol:' + contract);
-
-    const artifactNames: string[] = contracts.filter(
+    const artifactNames: string[] = artifactsList.filter(
         (f) => f.includes(artifactName)
     ).filter(
         (f) => !f.includes(diamondConfig.artifact?.abi?.path || '.diamond')
             && !f.includes(`${artifactName}.${diamondConfig.artifact?.abi?.file || '.diamond'}`)
     );
 
-    if (artifactNames.length == 0)
-        throw new HardhatPluginError(`\nDiamondArtifactsError`, `There is no contract for the given name.\n\n - ${contract}\n`);
-    if (artifactNames.length > 1)
-        throw new HardhatPluginError(
-            `\nDiamondArtifactsError`,
-            `Couldn't create diamond artifacts via config or there are multiple contracts with the same name.\n\n${contract}:\n${artifactNames
+    if (artifactNames.length == 0) throw console.error(color.lightGray(`\nDiamondArtifactsError: There is no diamond contract for the given name.`));
+    if (artifactNames.length > 1) throw console.error(
+        color.lightGray(
+            `\nDiamondArtifactsError: Couldn't create diamond artifacts via config or there are multiple contracts with the same name.\n\n${contract}:\n${artifactNames
                 .map((a) => ` - ${a}`)
-                .join('\n')}\n`
-        );
+                .join('\n')}\n`));
 
     const path: string[] = artifactNames[0].split('/');
     const folder: number = path.length;
@@ -165,53 +159,54 @@ async function __createArtifact(contract: string, contracts?: string[]) {
 
     const name: string = path[folder - 1].split(':')[1];
 
-    const config = diamondConfig?.artifact?.abi;
-    const include: string[] = config?.include || ['facet', 'facets', 'shared'];
-    const exclude: string[] = [`I${contract}`, ...(config?.exclude || [])];
+    if (!facets) {
+        const config = diamondConfig?.artifact?.abi;
+        const include: string[] = config?.include || ['facet', 'facets', 'shared'];
+        const exclude: string[] = [`I${contract}`, ...(config?.exclude || [])];
 
-    const base: string[] = contracts.filter((f: string) => !f.includes(artifactName) && f.includes(directory));
-    const facets: string[] = base.filter((f: string) => {
-        for (const n of include) {
-            return f.includes(n);
-        }
-    });
-
-    const others: string[] = facets.filter((f: string) => {
-        const other = f.split(directory + '/')[1].split('/');
-        for (const n of include) {
-            return !other[0].includes(n);
-        }
-    });
-
-    let inner: string[] = [];
-    if (others.length > 0) {
-        inner = base.filter((f: string) => {
+        const base: string[] = artifactsList.filter((f: string) => !f.includes(artifactName) && f.includes(directory));
+        facets = base.filter((f: string) => {
             for (const n of include) {
-                return !f.includes(n);
+                return f.includes(n);
             }
         });
 
-        for (const e of exclude) {
-            inner = inner.filter((f: string) => !f.includes(e));
-        }
-        inner = inner.filter((f: string) => {
-            const path = f.split('/');
-            !path[path.length - 1].startsWith('I');
-        });
-    }
-
-    let result: string[] = facets;
-    if (inner.length > 0) {
-        result = base.filter((f: string) => {
+        const others: string[] = facets.filter((f: string) => {
+            const other = f.split(directory + '/')[1].split('/');
             for (const n of include) {
-                return f.includes([directory, n].join('/'));
+                return !other[0].includes(n);
             }
         });
+
+        let inner: string[] = [];
+        if (others.length > 0) {
+            inner = base.filter((f: string) => {
+                for (const n of include) {
+                    return !f.includes(n);
+                }
+            });
+
+            for (const e of exclude) {
+                inner = inner.filter((f: string) => !f.includes(e));
+            }
+            inner = inner.filter((f: string) => {
+                const path = f.split('/');
+                !path[path.length - 1].startsWith('I');
+            });
+        }
+
+        if (inner.length > 0) {
+            facets = base.filter((f: string) => {
+                for (const n of include) {
+                    return f.includes([directory, n].join('/'));
+                }
+            });
+        }
     }
 
     const info = await artifacts.readArtifact(contract);
 
-    return { name, path, directory, facets: result, info };
+    return { name, path, directory, facets, info };
 }
 
 export function createArtifact(artifact: { name: string; directory: string; info: any }, abi: unknown[]): Artifact {
@@ -323,10 +318,18 @@ export async function cut(cuts: Cut[], display?: boolean, name?: string): Promis
 
 export async function factory(name: string, args: any[]) {
     let diamond: any = { name };
-    for (const arg of args) {
-        if (Array.isArray(arg) && 'key' in arg[0] && 'data' in arg[0]) diamond = { ...diamond, facets: arg };
-        if (typeof arg === 'object' && 'owner' in arg && 'init' in arg && 'initCalldata' in arg)
-            diamond = { ...diamond, init: arg };
+    let facets: any = [];
+
+    for (let i = 0; i < args.length; i++) {
+        if (Array.isArray(args[i]) && 'key' in args[i][0] && 'data' in args[i][0]) {
+            if (Array.isArray(args[i][0]?.data) && args[i][0]?.data.length > 0 && typeof args[i][0].data[0] === 'string') {
+                facets = args[i].flatMap((c: Cut) => c.data);
+                args[i] = await cut(args[i]);
+            }
+            diamond = { ...diamond, facets: args[i] };
+        }
+        if (typeof args[i] === 'object' && 'owner' in args[i] && 'init' in args[i] && 'initCalldata' in args[i])
+            diamond = { ...diamond, init: args[i] };
     }
 
     let contract: any;
@@ -345,12 +348,12 @@ export async function factory(name: string, args: any[]) {
     } catch (error) {
         if (JSON.stringify(error).includes('not found')) {
             try {
-                contract = await ethers.getContractFactory(await abi(name));
+                contract = await ethers.getContractFactory(await abi(name, facets));
             } catch {
                 try {
                     contract = await ethers.getContractFactory(`${name}.${diamondConfig.artifact?.abi?.file || 'diamond'}`);
-                } catch {
-                    throw new HardhatPluginError(`\nDiamondArtifactsError`, `Cannot find diamond artifact.`);
+                } catch (e) {
+                    throw console.error(color.lightGray(`\nDiamondArtifactsError: Cannot find diamond artifact.\n\n${e}`));
                 }
             }
         }
