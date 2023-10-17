@@ -1,7 +1,7 @@
 {
     "name": "@coinmeca/ethers",
     "description": "Solidty helpers and utilities for using ethers.",
-    "version": "1.5.62",
+    "version": "1.5.9",
     "keywords": [
         "coinmeca",
         "smart-contract",
@@ -35,8 +35,9 @@
     "exports": {
         ".": "./dist/index.js",
         "./*": "./dist/*.js",
+        "./*/*": "./dist/*/*.js",
         "./interfaces": "./dist/interfaces/index.js",
-        "./interfaces/*": "./dist/interfaces/*.js"
+        "./artifacts/*": "./dist/artifacts/*.json"
     },
     "typesVersions": {
         "*": {

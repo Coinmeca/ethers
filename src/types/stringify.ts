@@ -1,7 +1,8 @@
 import { font, color } from "../utils";
 
-export const c = ["Order", "Buy", "Sell", "Deposit", "Withdraw", "Stake", "Unstake", "Claim", "Long", "Short"];
-export const s = ["Pending", "Filled", "Claimable", "Complete", "Cancel", "Open", "Close", "Liquidation"];
+export const c = ["Order", "Buy", "Sell", "Deposit", "Withdraw", "Stake", "Unstake", "Claim", "Long", "Short", "Futures", "Perpetual", "Earn", "Charge"];
+export const o = ["General", "Market", "Limit", "Debit", "Prepaid", "Postpaid"];
+export const s = ["Pending", "Filled", "Claimable", "Complete", "Cancel", "Open", "Close", "Liquidation", "Requested", "Paid", "Shipping"];
 
 export function category(x: number): string {
     switch (c[x].toLowerCase()) {

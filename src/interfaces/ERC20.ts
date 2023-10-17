@@ -1,7 +1,9 @@
 import { a, n, u } from "utils";
 import { signers } from "accounts";
-import type { AccountLike, AddressString, IUser } from "accounts";
+import type { AccountLike, IUser } from "accounts";
 import { ethers } from "hardhat";
+import { BaseContract } from "ethers";
+import { AddressString } from "../types";
 
 export interface IERC20 extends IERC20Module {
     use: (user: IUser) => IERC20Module;
@@ -18,6 +20,7 @@ export interface IERC20Module extends AccountLike {
     allowance: (owner: AccountLike, spender: AccountLike) => Promise<number>;
     approve: (spender: AccountLike, amount: number | string) => Promise<boolean | void>;
     faucet: (to: AccountLike, amount: number) => Promise<boolean | void>;
+    contract: BaseContract;
 }
 
 export async function ERC20(token: any): Promise<IERC20> {

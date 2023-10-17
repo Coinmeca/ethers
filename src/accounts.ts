@@ -5,8 +5,7 @@ import { IERC20 } from "interfaces/ERC20";
 import { a, f, u, font, color, _ } from "utils";
 import { category, state } from "types/stringify";
 import { error } from "console";
-
-export type AddressString = `${'0x'}${string}`;
+import { AddressString } from "./types";
 
 export interface AccountLike {
     address: AddressString;
@@ -21,20 +20,22 @@ export interface Signers {
 
 export let signers: Signers;
 
+export interface IAccounts { User: (indexOrName: string | number) => IUser; };
+
 export interface IUser extends AccountLike {
     name: number | string;
     signer: SignerWithAddress | HardhatEthersSigner;
-    balance: () => Promise<any>;
-    send: (token: any, to: any, amount: number) => Promise<boolean | void>;
-    faucet: (token: any, amount: number, display?: boolean) => Promise<boolean | void>;
+    balance: (token?: IERC20) => Promise<any>;
+    send: (token: IERC20, to: any, amount: number) => Promise<boolean | void>;
+    faucet: (token: IERC20, amount: number, display?: boolean) => Promise<boolean | void>;
     allowance: (token: IERC20, owner: AccountLike, spender: AccountLike) => Promise<number | string>;
-    approve: (token: any, to: any, amount: number) => Promise<boolean | void>;
+    approve: (token: IERC20, to: any, amount: number) => Promise<boolean | void>;
     history: () => Promise<any[]>;
     getHistory: () => Promise<any[]>;
     set: (name: number | string) => any;
 }
 
-export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | number | symbol]: IERC20 }, [x: string | number | symbol]: object }) {
+export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | number | symbol]: IERC20 }, [x: string | number | symbol]: object }): Promise<IAccounts> {
     if (!signers) {
         signers = {
             ...await Promise.all((await ethers.getSigners()).map(async (a: any) => {
@@ -110,7 +111,7 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
         const history = async (history?: any, app?: any): Promise<any[]> => {
             const App = app || contracts?.app;
             if (App) {
-                const h = history ? history : await App.historyGetAll(User(name));
+                const h = history ? history : await App.historyGetAll(a(User(name)));
                 console.log(color.lightGray(`---------------------------  User: '${name}' History ---------------------------`));
                 console.log(`Total: ${h.length}`);
                 console.log(color.lightGray(`--------------------------------------------------------------------------------`));
