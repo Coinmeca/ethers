@@ -1,7 +1,8 @@
 import { ethers } from "hardhat";
-import { AddressLike } from "ethers";
-import { AccountLike, AddressString, IUser } from "accounts";
+import { AddressLike, BaseContract } from "ethers";
+import { AccountLike, IUser } from "accounts";
 import { a, color } from "utils";
+import { AddressString } from "../types";
 
 export interface IERC721 extends IERC721Module {
     use: (user: IUser) => IERC721Module;
@@ -25,6 +26,7 @@ export interface IERC721Module extends AccountLike {
     getApproved: (id: number | string) => Promise<any>;
     setApprovalForAll: (operator: AccountLike, approve: boolean) => Promise<any>;
     isApprovedForAll: (owner: AccountLike, operator: AccountLike) => Promise<any>;
+    contract: BaseContract;
 }
 
 export async function ERC721(token: any): Promise<IERC721> {

@@ -4,7 +4,8 @@ import { error } from 'console';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
 import { BigNumberish, toNumber } from 'ethers';
-import { AccountLike, AddressString } from 'accounts';
+import { AccountLike } from 'accounts';
+import { AddressString } from './types';
 import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
 
@@ -34,13 +35,13 @@ export function f(n: number | string): string {
 export function a(
     c: AccountLike | AddressString | string | number,
     display?: boolean
-): AccountLike | AddressString | string | number {
-    const result: AccountLike | AddressString | string | number =
+): AccountLike | AddressString | string {
+    const result =
         (typeof c === 'number' && c == 0
             ? '0x0000000000000000000000000000000000000000'
-            : typeof c === 'string' && c !== ''
+            : typeof c === 'string' && c.length === 42 && c.indexOf('x') === 1 && c !== ''
                 ? c
-                : (c as AccountLike)?.address) || c;
+                : (c as AccountLike)?.address);
     typeof result === 'string' && display && console.log(_('Address:', 13), result);
     return result;
 }
