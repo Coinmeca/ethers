@@ -63,7 +63,7 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
                         for (let i = 0; i < tokens?.length; i++) {
                             if (tokens[i]) {
                                 const symbol = tokens[i].symbol;
-                                const balance = (tokens?.length === 1 && i === 0) ? token : await tokens[0].balanceOf({ address });
+                                const balance = (tokens?.length === 1 && i === 0) ? token : await tokens[i].balanceOf({ address });
                                 if (symbol == 'MECA') console.log(color.lightGray(`-------------------------------------------------------------`))
                                 console.log(`${_(`${symbol}:`, 14)}${font.bold(color.yellow(f(balance)))}`);
                             }
@@ -92,7 +92,7 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
         }
 
         const allowance = async (token: IERC20, owner: AccountLike, spender: AccountLike): Promise<number | string> => {
-            return u(await token.use(User(name)).allowance(owner, spender));
+            return u(await token.use(User(name)).allowance(owner, spender), token.decimals);
         }
 
         const approve = async (token: IERC20, to: AccountLike, amount: number): Promise<boolean | void> => {
