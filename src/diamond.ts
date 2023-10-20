@@ -1,12 +1,13 @@
 import { mkdirSync, writeFile } from 'fs';
 import { createHash } from 'crypto';
-import { ethers, artifacts } from 'hardhat';
+import { artifacts, ethers } from 'hardhat';
 import { subtask } from 'hardhat/config';
 import { Artifact, HardhatRuntimeEnvironment, RunSuperFunction, TaskArguments } from 'hardhat/types';
 import { ResolvedFile } from 'hardhat/internal/solidity/resolver';
 import { CompilationJob } from 'hardhat/internal/solidity/compilation-job';
 import { TASK_COMPILE_SOLIDITY_COMPILE_JOBS } from 'hardhat/builtin-tasks/task-names';
 import { font, color, _ } from './utils';
+import { BaseContract, Fragment, Interface } from 'ethers';
 
 export const FacetCutAction = { Add: 0, Replace: 1, Remove: 2 };
 
@@ -370,68 +371,104 @@ export async function factory(name: string, args: any[]) {
     return deployed;
 }
 
-export async function get(this: any, functionNames: string[]) {
-    const selectors = this.filter((v: any) => {
-        for (const functionName of functionNames) {
-            if (v === this.contract.interface.getSighash(functionName)) {
-                return true;
-            }
-        }
-        return false;
-    });
-    selectors.contract = this.contract;
-    selectors.remove = this.remove;
-    selectors.get = this.get;
-    return selectors;
+export type Selector = `0x${string[8]}`;
+
+export type ContractWithSelectors = Selectors & any;
+
+export interface Selectors {
+    selectors?: (Selector | undefined)[];
+    get?: (this: ContractWithSelectors, functionNames?: (string | Selector)[]) => Selector[];
+    remove?: (this: ContractWithSelectors, functionNames: (string | Selector)[]) => (Selector | undefined)[];
+    [x: string | number | symbol]: any;
 }
 
-export async function remove(this: any, functionNames: string[]) {
-    const selectors: any = this.filter((v: any) => {
-        for (const functionName of functionNames) {
-            if (v === this.contract.interface.getSighash(functionName)) {
-                return false;
-            }
-        }
-        return true;
-    });
-    selectors.contract = this.contract;
-    selectors.remove = this.remove;
-    selectors.get = this.get;
-    return selectors;
+export function getAllFunctionNames(contract: ContractWithSelectors): string[] {
+    return (contract?.contract?.interface || contract?.interface).format(true).filter((f: string) => f.startsWith('function'));
 }
 
-export async function getSelectors(contract: any) {
-    const selectors: any = [];
-    for (const fragment of contract.interface.fragments) {
-        if (fragment.type === 'function') {
-            const selector = ethers.keccak256(ethers.toUtf8Bytes(fragment.format('sighash')));
-            selectors.push(selector.slice(0, 10));
-        }
+export function getAllSelectors(contract: ContractWithSelectors): Selector[] {
+    contract = contract?.contract?.interface ? contract?.contract : contract
+    return getAllFunctionNames(contract).map((f: string) => contract.interface.getFunction(f)?.selector) as Selector[];
+}
+
+function get(this: ContractWithSelectors, functionNames?: (string | Selector)[]): Selector[] {
+    const contract: BaseContract & Selectors = this.contract?.contract || this?.contract;
+
+    let selectors: Selector[] = []
+    if (functionNames) {
+
+        selectors = functionNames.map((n: string) => {
+            const names = getAllFunctionNames(contract).filter(f => f.includes(n)).map(f => {
+                return contract.interface.getFunction(f.split(' ')[1])?.selector
+            }) as Selector[];
+            const sigs = getAllSelectors(contract).filter(f => f === n) as Selector[];
+            return names.length > 0 ? names : sigs
+        }).flat();
+
+    } else {
+        selectors = getAllSelectors(contract);
     }
-    selectors.contract = contract;
-    selectors.remove = remove;
-    selectors.get = get;
-    return selectors;
+
+    this.selectors = selectors
+    return selectors
 }
 
-export async function getSelector(func: any) {
-    const abiInterface: any = new ethers.Interface([func]);
-    return abiInterface.getSighash(ethers.Fragment.from(func));
-}
-
-export async function removeSelectors(selectors: any, signatures: any) {
-    const iface: any = new ethers.Interface(signatures.map((v: string) => 'function ' + v));
-    const removeSelectors = signatures.map((v: any) => iface.getSighash(v));
-    selectors = selectors.filter((v: any) => !removeSelectors.includes(v));
-    return selectors;
-}
-
-export async function findAddressPositionInFacets(facetAddress: any, facets: any) {
-    for (let i = 0; i < facets.length; i++) {
-        if (facets[i].facetAddress === facetAddress) {
-            return i;
+function remove(this: ContractWithSelectors, functionNames: (string | Selector)[]): (Selector | undefined)[] {
+    const contract: BaseContract & Selectors = this.contract?.contract || this?.contract;
+    const selectors: (Selector | undefined)[] = contract?.selectors?.filter(
+        (s: Selector | undefined) => {
+            const names = functionNames.filter(f => getSelector(f) === s);
+            const sigs = functionNames.includes(s as string);
+            return names.length === 0 && !sigs
         }
+    ).flat() || [];
+
+    this.selectors = selectors;
+    return selectors;
+}
+
+export function getSelectors(contract: ContractWithSelectors): ContractWithSelectors {
+    const wrapping = contract?.contract ? true : false;
+    const selectors = getAllSelectors(contract?.contract || contract);
+    return (wrapping ? {
+        ...contract,
+        contract: {
+            ...contract?.contract,
+            selectors,
+            get,
+            remove
+        }
+    } : {
+        ...contract,
+        selectors,
+        get,
+        remove
+    }) as ContractWithSelectors
+}
+
+export function getSelector(functionName: string): string | undefined {
+    const fragment: Interface = new ethers.Interface('function ' + functionName);
+    return fragment.getFunction(functionName)?.selector;
+}
+
+export function removeSelectors(selectors: Selector[], functionNames: (Selector | string)[]): Selector[] {
+    const type = functionNames.filter((f: string) => f.startsWith('0x'));
+
+    let removedSelectors: Selector[];
+    if (type.length === 0) {
+        functionNames = functionNames.map((functionName: string) => 'function ' + functionName);
+        const fragments = new ethers.Interface(functionNames);
+        removedSelectors = selectors.filter((s: string) => {
+            const remove = functionNames.map((f: string) => fragments.getFunction(f)?.selector).filter(f => f === s);
+            return remove.length === 0;
+        });
+    } else {
+        removedSelectors = selectors.filter((s: string) => {
+            return !functionNames.includes(s);
+        });
     }
+
+    return removedSelectors;
 }
 
 export async function compile(
