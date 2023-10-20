@@ -49,7 +49,7 @@ export type Selector = `0x${string[8]}`;
 export type ContractWithSelectors = Selectors & any;
 
 export interface Selectors {
-    selectors?: (Selector | undefined)[];
+    selectors?: Selector[];
     get?: (this: ContractWithSelectors, functionNames?: (string | Selector)[]) => Selector[];
     remove?: (this: ContractWithSelectors, functionNames: (string | Selector)[]) => (Selector | undefined)[];
     [x: string | number | symbol]: any;
@@ -413,13 +413,13 @@ function get(this: ContractWithSelectors, functionNames?: (string | Selector)[])
     return selectors
 }
 
-function remove(this: ContractWithSelectors, functionNames: (string | Selector)[]): (Selector | undefined)[] {
+function remove(this: ContractWithSelectors, functionNames: (string | Selector)[]): Selector[] {
     const contract: BaseContract & Selectors = this?.contract?.interface ? this?.contract : this;
-    const selectors: (Selector | undefined)[] = contract?.selectors?.filter(
-        (s: Selector | undefined) => {
-            const names = functionNames.filter(f => getSelector(f) === s);
+    const selectors: Selector[] = contract?.selectors?.filter(
+        (s: Selector) => {
+            const names = functionNames.filter(f => getSelector(f) === s).includes(s);
             const sigs = functionNames.includes(s as string);
-            return names.length === 0 && !sigs
+            return !names && !sigs
         }
     ).flat() || [];
 
@@ -457,8 +457,7 @@ export function removeSelectors(selectors: Selector[], functionNames: (Selector 
         functionNames = functionNames.map((functionName: string) => 'function ' + functionName);
         const fragments = new ethers.Interface(functionNames);
         removedSelectors = selectors.filter((s: string) => {
-            const remove = functionNames.map((f: string) => fragments.getFunction(f)?.selector).filter(f => f === s);
-            return remove.length === 0;
+            return !functionNames.map((f: string) => fragments.getFunction(f)?.selector).filter(f => f === s).includes(s);
         });
     } else {
         removedSelectors = selectors.filter((s: string) => {
