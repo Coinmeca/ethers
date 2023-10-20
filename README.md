@@ -649,6 +649,6 @@ getSelector([
     '0x466a0146', '0x851642bf', 
     '0xb1530104', '0x82431dab',
     '0xcdffacc6', '0x52ef6b2c',
-!   '0xf69f473c', '0xadfca15e'
+-   '0xf69f473c', '0xadfca15e'
 ]
 ```
