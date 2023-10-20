@@ -220,7 +220,7 @@ export function getNetworkName(): any {
 export function saveAddress(result: any) {
     const n = getNetworkName();
 
-    const path = (env.DEPLOY_INFO_PATH || 'scripts/deploy/address/') + n.name + '/';
+    const path = (env.DEPLOY_INFO_PATH || 'scripts/deploy/address') + '/' + n.name + '/';
     const name = env.DEPLOY_INFO || 'deploy-info.json';
     const file = `${path}/${name}`;
 
