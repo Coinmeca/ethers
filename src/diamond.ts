@@ -44,6 +44,17 @@ interface DiamondArtifactConfig {
     abi?: abiConfig;
 }
 
+export type Selector = `0x${string[8]}`;
+
+export type ContractWithSelectors = Selectors & any;
+
+export interface Selectors {
+    selectors?: (Selector | undefined)[];
+    get?: (this: ContractWithSelectors, functionNames?: (string | Selector)[]) => Selector[];
+    remove?: (this: ContractWithSelectors, functionNames: (string | Selector)[]) => (Selector | undefined)[];
+    [x: string | number | symbol]: any;
+}
+
 export interface DiamondConfig {
     deployer?: DiamondDeployerConfig;
     artifact?: DiamondArtifactConfig;
@@ -297,7 +308,7 @@ export async function cut(cuts: Cut[], display?: boolean, name?: string): Promis
         for (const facetName of cuts[i].data) {
             const facet = await (await ethers.getContractFactory(facetName)).deploy();
             const address = await facet.getAddress();
-            const selectors = await getSelectors(facet);
+            const selectors = getSelectors(facet);
 
             if (display) {
                 console.log(color.lightGray(_(`Facet:`, 14)), facetName);
@@ -371,33 +382,22 @@ export async function factory(name: string, args: any[]) {
     return deployed;
 }
 
-export type Selector = `0x${string[8]}`;
-
-export type ContractWithSelectors = Selectors & any;
-
-export interface Selectors {
-    selectors?: (Selector | undefined)[];
-    get?: (this: ContractWithSelectors, functionNames?: (string | Selector)[]) => Selector[];
-    remove?: (this: ContractWithSelectors, functionNames: (string | Selector)[]) => (Selector | undefined)[];
-    [x: string | number | symbol]: any;
-}
-
 export function getAllFunctionNames(contract: ContractWithSelectors): string[] {
     return (contract?.contract?.interface || contract?.interface).format(true).filter((f: string) => f.startsWith('function'));
 }
 
 export function getAllFunctionSelectors(contract: ContractWithSelectors): Selector[] {
-    contract = contract?.contract?.interface ? contract?.contract : contract
+    contract = contract?.contract?.interface ? contract?.contract : contract;
     return getAllFunctionNames(contract).map((f: string) => contract.interface.getFunction(f)?.selector) as Selector[];
 }
 
 function get(this: ContractWithSelectors, functionNames?: (string | Selector)[]): Selector[] {
-    const contract: BaseContract & Selectors = this.contract?.contract || this?.contract;
-
+    const contract: BaseContract & Selectors = this?.contract?.interface ? this?.contract : this;
     let selectors: Selector[] = []
-    if (functionNames) {
 
+    if (functionNames) {
         selectors = functionNames.map((n: string) => {
+            console.log('callbefore', contract);
             const names = getAllFunctionNames(contract).filter(f => f.includes(n)).map(f => {
                 return contract.interface.getFunction(f.split(' ')[1])?.selector
             }) as Selector[];
@@ -414,7 +414,7 @@ function get(this: ContractWithSelectors, functionNames?: (string | Selector)[])
 }
 
 function remove(this: ContractWithSelectors, functionNames: (string | Selector)[]): (Selector | undefined)[] {
-    const contract: BaseContract & Selectors = this.contract?.contract || this?.contract;
+    const contract: BaseContract & Selectors = this?.contract?.interface ? this?.contract : this;
     const selectors: (Selector | undefined)[] = contract?.selectors?.filter(
         (s: Selector | undefined) => {
             const names = functionNames.filter(f => getSelector(f) === s);
@@ -428,22 +428,20 @@ function remove(this: ContractWithSelectors, functionNames: (string | Selector)[
 }
 
 export function getSelectors(contract: ContractWithSelectors): ContractWithSelectors {
-    const wrapping = contract?.contract ? true : false;
-    const selectors = getAllFunctionSelectors(contract?.contract || contract);
-    return (wrapping ? {
-        ...contract,
-        contract: {
-            ...contract?.contract,
-            selectors,
-            get,
-            remove
-        }
-    } : {
-        ...contract,
-        selectors,
-        get,
-        remove
-    }) as ContractWithSelectors
+    const wrapping = contract?.contract?.interface ? true : false;
+    const selectors = getAllFunctionSelectors(wrapping ? contract?.contract : contract);
+
+    if (wrapping) {
+        contract.contract.selectors = selectors;
+        contract.contract.get = get;
+        contract.contract.remove = remove;
+    } else {
+        contract.selectors = selectors;
+        contract.get = get;
+        contract.remove = remove;
+    }
+
+    return selectors;
 }
 
 export function getSelector(functionName: string): string | undefined {
