@@ -236,7 +236,7 @@ export function saveAddress(result: any) {
     }
 }
 
-export function addAddress(contract: string, address: string) {
+export function addAddress(contract: string, address: string | string[] | object) {
     const load = loadAddress();
     saveAddress({ ...load?.contracts, [`${contract}`]: address });
 }
