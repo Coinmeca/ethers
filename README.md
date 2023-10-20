@@ -499,7 +499,7 @@ import { diamond } from "@coinmeca/ethers";
 const deploy = () =>{
     await ethers.getContractAt(
         "myDiamond",
-        await diamond.cut([
+        [
             {
                 key: "myDiamond.app",
                 data: [
@@ -509,7 +509,7 @@ const deploy = () =>{
                     "contracts/myapp/facets/Transfer.sol:Transfer",
                 ],
             },
-        ]),
+        ],
         {
             owner: addressOf.owner,
             init: addressOf.initContract,
@@ -527,7 +527,7 @@ import { diamond } from "@coinmeca/ethers";
 const deploy = () =>{
     await ethers.getContractAt(
         "myDiamond",
-        await diamond.cut([
+        [
             {
                 key: "myDiamond.app",
                 data: [
@@ -537,7 +537,7 @@ const deploy = () =>{
                     "contracts/myapp/facets/Transfer.sol:Transfer",
                 ],
             },
-        ]),
+        ],
         {
             owner: addressOf.owner,
             init: addressOf.initContract,
