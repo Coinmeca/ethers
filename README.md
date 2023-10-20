@@ -546,3 +546,109 @@ const deploy = () =>{
     );
 }
 ```
+
+### `getAllFunctionNames( BaseContract || {contract: BaseContract} )`
+
+Returns the function name held in the currently deployed contract in the form of a string array.
+
+```js
+import { getAllFunctionNames } from "@coinmeca/ethers/diamond";
+
+getAllFunctionNames(baseContract);
+```
+
+```js
+[
+    'function owner() returns (address)',
+    'function setOwner(address)',
+    'function setAccess(address,bool)',
+    'function checkAccess(address) view returns (bool)',
+    'function setInterface(bytes4,bool)',
+    'function facet(bytes4) returns (address)',
+    'function facetAddress(bytes4) view returns (address)',
+    'function facetAddresses() view returns (address[])',
+]
+```
+
+### `getAllSelectors( BaseContract || {contract: BaseContract} )`
+
+Returns the selector (signature) of the function contained in the currently deployed contract in the form of a string array.
+
+```js
+import { getAllSelectors } from "@coinmeca/ethers/diamond";
+
+getAllSelectors(baseContract);
+```
+
+```js
+[
+    '0x466a0146', '0x851642bf', 
+    '0xb1530104', '0x82431dab',
+    '0xcdffacc6', '0x52ef6b2c',
+    '0xf69f473c', '0xadfca15e'
+]
+```
+
+### `getSelectors( BaseContract || {contract: BaseContract} )`
+
+Returns an object to which the selector property and get and remove functions for handling it are added in the form of a string array with selectors (signatures) of all functions actually owned by the contract within the BaseContract itself or an object in which BaseContract exists as a contract property.
+
+```js
+import { getSelectors, type ContractWithSelectors } from "@coinmeca/ethers/diamond";
+
+getSelectors(baseContract);
+```
+
+```js
+<ContractWithSelectors> {
+    contract: <BaseContract>,
+    selectors ['0x466a0146', ...],
+    get() => Selector[],
+    set() => Selector[]
+}
+```
+
+### `getSelector( funtionName: string )`
+
+Returns selector (signature) of the given function name passed via parameter.
+
+```js
+import { getSelector } from "@coinmeca/ethers/diamond";
+
+getSelector('setAccess(address,bool)');
+```
+
+```js
+'0x466a0146'
+```
+
+### `removeSelectors( selectors: Selector[] | functionNames: (Selector | string)[] )`
+
+Removes the selector corresponding to the additionally given filter list from the some selector array passed in the parameter. The filter list for removal provided in the parameter can be passed as an input value in the desired form, either as a function name or as a string array of a selector (signature).
+
+```js
+import { removeSelectors, type Selector } from "@coinmeca/ethers/diamond";
+
+const mySelectors: Selector[] = [
+    '0x466a0146', '0x851642bf', 
+    '0xb1530104', '0x82431dab',
+    '0xcdffacc6', '0x52ef6b2c',
+    '0xf69f473c', '0xadfca15e'
+]
+
+getSelector(['0xf69f473c', '0xadfca15e']);
+// or
+getSelector([
+    'function facetAddress(bytes4) view returns (address)',
+    'function facetAddresses() view returns (address[])'
+]);
+```
+
+```diff
+[
+    '0x466a0146', '0x851642bf', 
+    '0xb1530104', '0x82431dab',
+    '0xcdffacc6', '0x52ef6b2c',
+#    '0xf69f473c', '0xadfca15e'
+]
+```
