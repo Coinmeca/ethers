@@ -596,7 +596,9 @@ Returns an object to which the selector property and get and remove functions fo
 ```js
 import { getSelectors, type ContractWithSelectors } from "@coinmeca/ethers/diamond";
 
-getSelectors(baseContract);
+const contract = await (await ethers.getContractFactory('MyContract')).deploy();
+const address = await facet.getAddress();
+const selectors = getSelectors(contract);
 ```
 
 ```js
