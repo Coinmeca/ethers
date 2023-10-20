@@ -570,14 +570,14 @@ getAllFunctionNames(baseContract);
 ]
 ```
 
-### `getAllSelectors( BaseContract || {contract: BaseContract} )`
+### `getAllFunctionSelectors( BaseContract || {contract: BaseContract} )`
 
 Returns the selector (signature) of the function contained in the currently deployed contract in the form of a string array.
 
 ```js
-import { getAllSelectors } from "@coinmeca/ethers/diamond";
+import { getAllFunctionSelectors } from "@coinmeca/ethers/diamond";
 
-getAllSelectors(baseContract);
+getAllFunctionSelectors(baseContract);
 ```
 
 ```js

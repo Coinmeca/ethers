@@ -386,7 +386,7 @@ export function getAllFunctionNames(contract: ContractWithSelectors): string[] {
     return (contract?.contract?.interface || contract?.interface).format(true).filter((f: string) => f.startsWith('function'));
 }
 
-export function getAllSelectors(contract: ContractWithSelectors): Selector[] {
+export function getAllFunctionSelectors(contract: ContractWithSelectors): Selector[] {
     contract = contract?.contract?.interface ? contract?.contract : contract
     return getAllFunctionNames(contract).map((f: string) => contract.interface.getFunction(f)?.selector) as Selector[];
 }
@@ -401,12 +401,12 @@ function get(this: ContractWithSelectors, functionNames?: (string | Selector)[])
             const names = getAllFunctionNames(contract).filter(f => f.includes(n)).map(f => {
                 return contract.interface.getFunction(f.split(' ')[1])?.selector
             }) as Selector[];
-            const sigs = getAllSelectors(contract).filter(f => f === n) as Selector[];
+            const sigs = getAllFunctionSelectors(contract).filter(f => f === n) as Selector[];
             return names.length > 0 ? names : sigs
         }).flat();
 
     } else {
-        selectors = getAllSelectors(contract);
+        selectors = getAllFunctionSelectors(contract);
     }
 
     this.selectors = selectors
@@ -429,7 +429,7 @@ function remove(this: ContractWithSelectors, functionNames: (string | Selector)[
 
 export function getSelectors(contract: ContractWithSelectors): ContractWithSelectors {
     const wrapping = contract?.contract ? true : false;
-    const selectors = getAllSelectors(contract?.contract || contract);
+    const selectors = getAllFunctionSelectors(contract?.contract || contract);
     return (wrapping ? {
         ...contract,
         contract: {
