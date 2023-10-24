@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { HardhatEthersSigner, SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
-import { IERC20 } from "interfaces/ERC20";
+import ERC20, { IERC20, IERC20Module } from "interfaces/ERC20";
 import { a, f, u, font, color, _ } from "utils";
 import { category, state } from "types/stringify";
 import { error } from "console";
@@ -20,18 +20,19 @@ export interface Signers {
 
 export let signers: Signers;
 
-export interface IAccounts { User: (indexOrName: string | number) => IUser; };
+export interface IAccounts { User: (indexOrName: string | number | AddressString) => IUser; };
 
 export interface IUser extends AccountLike {
     name: number | string;
     signer: SignerWithAddress | HardhatEthersSigner;
-    balance: (token?: IERC20) => Promise<any>;
-    send: (token: IERC20, to: any, amount: number) => Promise<boolean | void>;
-    faucet: (token: IERC20, amount: number, display?: boolean) => Promise<boolean | void>;
-    allowance: (token: IERC20, owner: AccountLike, spender: AccountLike) => Promise<number | string>;
-    approve: (token: IERC20, to: any, amount: number) => Promise<boolean | void>;
-    history: () => Promise<any[]>;
-    getHistory: () => Promise<any[]>;
+    as: (address: AddressString) => Promise<SignerLike>;
+    balance?: (token?: IERC20) => Promise<any>;
+    send?: (token: IERC20, to: any, amount: number) => Promise<boolean | void>;
+    faucet?: (token: IERC20, amount: number, display?: boolean) => Promise<boolean | void>;
+    allowance?: (token: IERC20, owner: AccountLike, spender: AccountLike) => Promise<number | string>;
+    approve?: (token: IERC20, to: any, amount: number) => Promise<boolean | void>;
+    history?: () => Promise<any[]>;
+    getHistory?: () => Promise<any[]>;
     set: (name: number | string) => any;
 }
 
@@ -49,8 +50,6 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
         const name: string = typeof indexOrName === 'string' ? indexOrName : indexOrName.toString();
         const signer: SignerWithAddress | HardhatEthersSigner = signers[name];
         const address: AddressString = signer.address as AddressString;
-
-        if (!address || typeof signer !== 'object') throw error('Not found user: ', name);
 
         const balance = async (token?: IERC20, display?: boolean): Promise<any> => {
             const tokens: IERC20[] | undefined = token ? [token] : typeof contracts?.tokens === 'object' ? Object.values(contracts?.tokens) : Array.isArray(contracts?.tokens) ? contracts?.tokens : undefined;
@@ -92,12 +91,14 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
             return result;
         }
 
-        const allowance = async (token: IERC20, owner: AccountLike, spender: AccountLike): Promise<number | string> => {
-            return u(await token.use(User(name)).allowance(owner, spender), token.decimals);
+        const allowance = async (token: IERC20 | AddressString, spender: AccountLike | AddressString): Promise<number | string> => {
+            const t: IERC20Module = typeof token === 'string' ? (await ERC20(token)).use(User(name)) : token;
+            return await t.allowance(address, a(spender) as AddressString);
         }
 
-        const approve = async (token: IERC20, to: AccountLike, amount: number): Promise<boolean | void> => {
-            return await token.use(User(name)).approve(to, amount)
+        const approve = async (token: IERC20 | AddressString, to: AccountLike | AddressString, amount: number): Promise<boolean | void> => {
+            const t: IERC20Module = typeof token === 'string' ? (await ERC20(token)).use(User(name)) : token;
+            return await t.approve(a(to) as AddressString, amount);
         }
 
         const getHistory = async (app?: any): Promise<any[]> => {
@@ -130,6 +131,15 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
             return [];
         };
 
+        const as = async (address: AddressString): Promise<SignerLike> => {
+            const signer = await ethers.getSigner(address)
+            signers = {
+                ...signers,
+                [`${name}`]: signer
+            }
+            return module;
+        }
+
         const set = (name: number | string): any => {
             signers = {
                 ...signers,
@@ -142,6 +152,7 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
             signer,
             address,
             name,
+            as,
             set,
             faucet,
             balance,
@@ -150,9 +161,10 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
             send,
             history,
             getHistory,
-        }
+        };
 
-        return module;
+        if (!address || typeof signer !== 'object') return { as } as IUser;
+        return module
     }
 
     return { User }

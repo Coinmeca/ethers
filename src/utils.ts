@@ -200,7 +200,7 @@ export function result(result: boolean, message: string, option?: any) {
             color.green(font.bold('✓')),
             color.green(` ${message || 'Success'}\n`),
         );
-        (option && option[0] && Array.isArray(option)) ? option.map((o) => { console.log(color.lightGray(' - ' + o), '\n') }) : console.log(color.lightGray(option))
+        option && (option[0] && Array.isArray(option)) ? option.map((o) => { console.log(color.lightGray(' - ' + o), '\n') }) : console.log(color.lightGray(option))
     } else {
         console.log(color.red(font.bold('❌')), color.red(` ${message || 'Failure'}\n\n`), option && color.lightGray(option), '\n');
     }
@@ -236,7 +236,7 @@ export function saveAddress(result: any) {
     }
 }
 
-export function addAddress(contract: string, address: string | string[] | object) {
+export function addAddress(contract: string, address: AddressString | AddressString[] | object) {
     const load = loadAddress();
     saveAddress({ ...load?.contracts, [`${contract}`]: address });
 }
