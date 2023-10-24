@@ -1,6 +1,6 @@
 import { AccountLike } from "./accounts";
 
-export type AddressString = `${'0x'}${string}`;
+export type AddressString = `${'0x'}${string[40]}`;
 
 export type Category = 'order' | 'buy' | 'sell' | 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'claim' | 'long' | 'short' | 'futures' | 'perpetual' | 'earn' | 'charge';
 export type Option = 'general' | 'market' | 'limit' | 'debit' | 'prepaid' | 'postpaid';

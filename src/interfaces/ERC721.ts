@@ -16,16 +16,16 @@ export interface IERC721Module extends AccountLike {
     tokenURI: (id: number | string, display?: boolean) => Promise<string>;
     tokenIMG: (id: number | string, display?: boolean) => Promise<string>;
     totalSupply: () => Promise<number>;
-    balanceOf: (owner: AccountLike, display?: boolean) => Promise<number>;
-    tokensOf: (owner: AccountLike, display?: boolean) => Promise<number[]>;
-    keysOf: (owner: AccountLike, display?: boolean) => Promise<string[]>;
+    balanceOf: (owner: AccountLike | AddressString, display?: boolean) => Promise<number>;
+    tokensOf: (owner: AccountLike | AddressString, display?: boolean) => Promise<number[]>;
+    keysOf: (owner: AccountLike | AddressString, display?: boolean) => Promise<string[]>;
     ownerOf: (id: number | string, display?: boolean) => Promise<AddressLike>;
-    transferFrom: (from: AccountLike, to: AccountLike, id: number | string) => Promise<any>;
-    safeTransferFrom: (from: AccountLike, to: AccountLike, id: number | string, data?: any) => Promise<any>;
-    approve: (to: AccountLike, id: number | string) => Promise<any>;
+    transferFrom: (from: AccountLike | AddressString, to: AccountLike | AddressString, id: number | string) => Promise<any>;
+    safeTransferFrom: (from: AccountLike | AddressString, to: AccountLike | AddressString, id: number | string, data?: any) => Promise<any>;
+    approve: (to: AccountLike | AddressString, id: number | string) => Promise<any>;
     getApproved: (id: number | string) => Promise<any>;
-    setApprovalForAll: (operator: AccountLike, approve: boolean) => Promise<any>;
-    isApprovedForAll: (owner: AccountLike, operator: AccountLike) => Promise<any>;
+    setApprovalForAll: (operator: AccountLike | AddressString, approve: boolean) => Promise<any>;
+    isApprovedForAll: (owner: AccountLike | AddressString, operator: AccountLike | AddressString) => Promise<any>;
     contract: BaseContract;
 }
 
@@ -83,7 +83,7 @@ export async function ERC721(token: any): Promise<IERC721> {
             return await token?.totalSupply();
         }
 
-        const balanceOf = async (owner: any, display?: boolean): Promise<number> => {
+        const balanceOf = async (owner: AccountLike | AddressString, display?: boolean): Promise<number> => {
             const balance = await token.balanceOf(a(owner))
             if (display) {
                 console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
@@ -94,7 +94,7 @@ export async function ERC721(token: any): Promise<IERC721> {
             return balance;
         }
 
-        const tokensOf = async (owner: any, display?: boolean): Promise<number[]> => {
+        const tokensOf = async (owner: AccountLike | AddressString, display?: boolean): Promise<number[]> => {
             const tokens = await token.tokensOf(a(owner));
             if (display) {
                 console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
@@ -105,7 +105,7 @@ export async function ERC721(token: any): Promise<IERC721> {
             return tokens;
         }
 
-        const keysOf = async (owner: any, display?: boolean): Promise<string[]> => {
+        const keysOf = async (owner: AccountLike | AddressString, display?: boolean): Promise<string[]> => {
             const keys = await token.keysOf(a(owner));
             if (display) {
                 console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
@@ -127,17 +127,17 @@ export async function ERC721(token: any): Promise<IERC721> {
             return owner;
         };
 
-        const transferFrom = async (from: AccountLike, to: AccountLike, id: number | string): Promise<any> => {
+        const transferFrom = async (from: AccountLike | AddressString, to: AccountLike | AddressString, id: number | string): Promise<any> => {
             return await token.transferFrom(a(from), a(to), id);
         };
 
-        const safeTransferFrom = async (from: AccountLike, to: AccountLike, id: number | string, data?: any): Promise<any> => {
+        const safeTransferFrom = async (from: AccountLike | AddressString, to: AccountLike | AddressString, id: number | string, data?: any): Promise<any> => {
             return data
                 ? await token.safeTransferFrom(a(from), a(to), id)
                 : await token.safeTransferFrom(a(from), a(to), id, data);
         }
 
-        const approve = async (to: AccountLike, id: number | string): Promise<any> => {
+        const approve = async (to: AccountLike | AddressString, id: number | string): Promise<any> => {
             return await token.approve(a(to), id);
         };
 
@@ -145,11 +145,11 @@ export async function ERC721(token: any): Promise<IERC721> {
             return await token.getApproved(id)
         }
 
-        const setApprovalForAll = async (operator: AccountLike, approve: boolean): Promise<any> => {
+        const setApprovalForAll = async (operator: AccountLike | AddressString, approve: boolean): Promise<any> => {
             await token.setApprovalForAll(a(operator), approve);
         };
 
-        const isApprovedForAll = async (owner: AccountLike, operator: AccountLike): Promise<any> => {
+        const isApprovedForAll = async (owner: AccountLike | AddressString, operator: AccountLike | AddressString): Promise<any> => {
             return token.isApprovedForAll(a(owner), a(operator));
         };
 

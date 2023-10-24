@@ -14,12 +14,12 @@ export interface IERC20Module extends AccountLike {
     symbol: string;
     decimals: number;
     totalSupply: () => Promise<number>;
-    balanceOf: (owner: AccountLike) => Promise<number>;
-    transfer: (to: AccountLike, amount: number) => Promise<boolean | void>;
-    transferFrom: (from: AccountLike, to: AccountLike, amount: number) => Promise<boolean | void>;
-    allowance: (owner: AccountLike, spender: AccountLike) => Promise<number>;
-    approve: (spender: AccountLike, amount: number | string) => Promise<boolean | void>;
-    faucet: (to: AccountLike, amount: number) => Promise<boolean | void>;
+    balanceOf: (owner: AccountLike | AddressString) => Promise<number>;
+    transfer: (to: AccountLike | AddressString, amount: number) => Promise<boolean | void>;
+    transferFrom: (from: AccountLike | AddressString, to: AccountLike | AddressString, amount: number) => Promise<boolean | void>;
+    allowance: (owner: AccountLike | AddressString, spender: AccountLike | AddressString) => Promise<number>;
+    approve: (spender: AccountLike | AddressString, amount: number | string) => Promise<boolean | void>;
+    faucet: (to: AccountLike | AddressString, amount: number) => Promise<boolean | void>;
     contract: BaseContract;
 }
 
@@ -36,28 +36,28 @@ export async function ERC20(token: any): Promise<IERC20> {
             return u(await token?.totalSupply(), decimals);
         }
 
-        const balanceOf = async (owner: AccountLike): Promise<number> => {
+        const balanceOf = async (owner: AccountLike | AddressString): Promise<number> => {
             return u(await token.balanceOf(a(owner)), decimals);
         };
 
-        const transfer = async (to: AccountLike, amount: number | string): Promise<boolean | void> => {
+        const transfer = async (to: AccountLike | AddressString, amount: number | string): Promise<boolean | void> => {
             return await token.transfer(a(to), n(amount, decimals));
         };
 
-        const transferFrom = async (from: AccountLike, to: AccountLike, amount: number): Promise<boolean | void> => {
+        const transferFrom = async (from: AccountLike | AddressString, to: AccountLike | AddressString, amount: number): Promise<boolean | void> => {
             await (user ? token.connect(user.signer) : token).approve(to,)
             return await token.transferFrom(a(from), a(to), n(amount, decimals));
         };
 
-        const allowance = async (owner: AccountLike, spender: AccountLike): Promise<number> => {
+        const allowance = async (owner: AccountLike | AddressString, spender: AccountLike | AddressString): Promise<number> => {
             return u(await token.allowance(a(owner), a(spender)), decimals);
         }
 
-        const approve = async (spender: AccountLike, amount: number | string): Promise<boolean | void> => {
+        const approve = async (spender: AccountLike | AddressString, amount: number | string): Promise<boolean | void> => {
             return await token.approve(a(spender), n(amount, decimals));
         };
 
-        const faucet = async (to: AccountLike, amount: number | string): Promise<boolean | void> => {
+        const faucet = async (to: AccountLike | AddressString, amount: number | string): Promise<boolean | void> => {
             return await token.connect(signers[0]).transfer(a(to), n(amount, decimals));
         }
 
