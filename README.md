@@ -165,6 +165,8 @@ await User(1).approve(Tokens.METH, User(2), 1);
 
 # interfaces
 
+Interfaces are working with basic standard requirements. So there are only the standard functions. Currently only interfaces for two token standards are supported: 20 and 721.
+
 ```js
 import { ERC20, type IERC20 } from '@coinmeca/ethers/interfaces';
 
@@ -172,13 +174,16 @@ const MyERC20:IERC20 = await ERC20(await (await ethers.getContractFactory("MyERC
 ```
 
 ```js
-await ERC20('0x14723A09ACff6D2A60DcdF7aA4AFf308FDDC160C');
-```
-
-```js
 import { ERC721, type IERC721 } from '@coinmeca/ethers/interfaces';
 
 const MyERC721:IERC721 = await ERC721(await (await ethers.getContractFactory("MyERC721")).deploy());
+```
+
+
+Even if not only the case of deployment, you can apply the interface to a previously distributed contract through the address string.
+
+```js
+await ERC20('0x14723A09ACff6D2A60DcdF7aA4AFf308FDDC160C');
 ```
 
 ```js
