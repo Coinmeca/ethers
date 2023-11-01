@@ -1,7 +1,7 @@
 {
     "name": "@coinmeca/ethers",
     "description": "Solidty helpers and utilities for using ethers.",
-    "version": "1.7.3",
+    "version": "1.8.3",
     "keywords": [
         "coinmeca",
         "smart-contract",
@@ -34,17 +34,15 @@
     ],
     "exports": {
         ".": "./dist/index.js",
-        "./*": "./dist/*.js",
-        "./*/*": "./dist/*/*.js",
-        "./interfaces": "./dist/interfaces/index.js",
-        "./artifacts/*": "./dist/artifacts/*.json"
+        "./*": ["./dist/*.js","./dist/*/index.js"]
     },
     "typesVersions": {
         "*": {
             "*": [
-                "./dist",
                 "./dist/*",
-                "./dist/*/index.js"
+                "./dist/index",
+                "./dist/*/index",
+                "./dist/artifaces/*.json"
             ]
         }
     },
@@ -54,19 +52,19 @@
         "clean": "rimraf ./dist ./build ./tsconfig.tsbuildinfo ./node_modules/.cache"
     },
     "devDependencies": {
-        "@commitlint/cli": "^17.2.0",
-        "@commitlint/config-conventional": "^17.2.0",
+        "@commitlint/cli": "^18.2.0",
+        "@commitlint/config-conventional": "^18.1.0",
         "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
         "@nomicfoundation/hardhat-ethers": "^3.0.4",
         "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
         "@nomicfoundation/hardhat-toolbox": "^3.0.0",
         "@nomiclabs/hardhat-waffle": "^2.0.1",
-        "@typechain/ethers-v6": "^0.5.0",
-        "@typechain/hardhat": "^9.0.0",
-        "@types/chai": "^4.3.8",
+        "@typechain/ethers-v6": "^0.5.1",
+        "@typechain/hardhat": "^9.1.0",
+        "@types/chai": "^4.3.9",
         "chai": "^4.3.10",
         "ethers": "^6.8.0",
-        "hardhat": "^2.18.1",
+        "hardhat": "^2.18.3",
         "tsc-alias": "^1.8.7",
         "tscp": "^1.0.0",
         "typescript": "^5.2.2",

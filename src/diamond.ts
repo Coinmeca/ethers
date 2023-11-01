@@ -149,32 +149,54 @@ class abiCompilationJob extends CompilationJob {
 
 
 async function __createArtifact(contract: string, facets?: string[]) {
-    const artifactsList: string[] = (await artifacts.getAllFullyQualifiedNames()).filter((f: string) => !f.includes('.diamond'));
+    let info: any;
+    let path: string[];
+    let folder: number;
+    let directory: string;
+    let name: string;
+
+    const diamond = (await artifacts.getAllFullyQualifiedNames()).filter((f: string) => f.includes(contract)).filter((f: string) => f.includes(`${diamondConfig.artifact?.abi?.file || '.diamond'}`));
+
+    const artifactsList: string[] = (await artifacts.getAllFullyQualifiedNames());
     const artifactName: string = contract + (contract.includes(':') ? '' : '.sol:' + contract);
     const artifactNames: string[] = artifactsList.filter(
         (f) => f.includes(artifactName)
     ).filter(
-        (f) => !f.includes(diamondConfig.artifact?.abi?.path || '.diamond')
-            && !f.includes(`${artifactName}.${diamondConfig.artifact?.abi?.file || '.diamond'}`)
+        (f) => {
+            let path = diamondConfig.artifact?.abi?.path;
+            path = path ? (path?.startsWith('artifacts/') && path?.length > 10 ? path?.substring(10, path.length) : path) : undefined;
+
+            return !f.includes(path || '.diamonds')
+                || !f.includes(`.${diamondConfig.artifact?.abi?.file || 'diamond'}`)
+        }
     );
 
-    if (artifactNames.length == 0) throw console.error(color.lightGray(`\nDiamondArtifactsError: There is no diamond contract for the given name.`));
-    if (artifactNames.length > 1) throw console.error(
-        color.lightGray(
-            `\nDiamondArtifactsError: Couldn't create diamond artifacts via config or there are multiple contracts with the same name.\n\n${contract}:\n${artifactNames
-                .map((a) => ` - ${a}`)
-                .join('\n')}\n`));
+    if (diamond?.length === 1 && !facets) {
+        info = await artifacts.readArtifact(diamond[0]);
+        path = diamond[0].split('/');
+        folder = path.length;
+        directory = path.slice(0, folder - 1).join('/');
+        name = path[folder - 1].split(':')[1].replaceAll(`.${diamondConfig.artifact?.abi?.file || 'diamond'}`, '');
+    } else {
 
-    const path: string[] = artifactNames[0].split('/');
-    const folder: number = path.length;
-    const directory: string = path.slice(0, folder - 1).join('/');
+        if (artifactNames.length == 0) throw console.error(color.lightGray(`\nDiamondArtifactsError: There is no diamond contract for the given name.`));
+        if (artifactNames.length > 1) throw console.error(
+            color.lightGray(
+                `\nDiamondArtifactsError: Couldn't create diamond artifacts via config or there are multiple contracts with the same name.\n\n${contract}:\n${artifactNames
+                    .map((a) => ` - ${a}`)
+                    .join('\n')
+                } \n`));
 
-    const name: string = path[folder - 1].split(':')[1];
+        path = artifactNames[0].split('/');
+        folder = path.length;
+        directory = path.slice(0, folder - 1).join('/');
+        name = path[folder - 1].split(':')[1];
+    }
 
     if (!facets) {
         const config = diamondConfig?.artifact?.abi;
         const include: string[] = config?.include || ['facet', 'facets', 'shared'];
-        const exclude: string[] = [`I${contract}`, ...(config?.exclude || [])];
+        const exclude: string[] = [`I${contract} `, ...(config?.exclude || [])];
 
         const base: string[] = artifactsList.filter((f: string) => !f.includes(artifactName) && f.includes(directory));
         facets = base.filter((f: string) => {
@@ -216,7 +238,7 @@ async function __createArtifact(contract: string, facets?: string[]) {
         }
     }
 
-    const info = await artifacts.readArtifact(contract);
+    info = info ?? await artifacts.readArtifact(contract);
 
     return { name, path, directory, facets, info };
 }
@@ -233,8 +255,8 @@ export function createArtifact(artifact: { name: string; directory: string; info
 
     return {
         ...artifact.info,
-        contractName: `${artifact.name}.${diamondConfig.artifact?.abi?.file || 'diamond'}`,
-        sourceName: `${path || '.diamonds/'}/${artifact.name}.sol`,
+        contractName: `${artifact.name}.${diamondConfig.artifact?.abi?.file || 'diamond'} `,
+        sourceName: `${path || '.diamonds'} /${artifact.name}.sol`,
         abi: Array.from(new Set(abi))
     } as const;
 }
@@ -328,7 +350,7 @@ export async function cut(cuts: Cut[], display?: boolean, name?: string): Promis
     return diamond;
 }
 
-export async function factory(name: string, args: any[]) {
+export async function factory(name: string, args: any[], display?: boolean) {
     let diamond: any = { name };
     let facets: any = [];
 
@@ -336,7 +358,7 @@ export async function factory(name: string, args: any[]) {
         if (Array.isArray(args[i]) && 'key' in args[i][0] && 'data' in args[i][0]) {
             if (Array.isArray(args[i][0]?.data) && args[i][0]?.data.length > 0 && typeof args[i][0].data[0] === 'string') {
                 facets = args[i].flatMap((c: Cut) => c.data);
-                args[i] = await cut(args[i]);
+                args[i] = await cut(args[i], display);
             }
             diamond = { ...diamond, facets: args[i] };
         }
