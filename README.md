@@ -15,7 +15,7 @@ yarn add @coinmeca/ethers -D
 ```js
 import { ethers } from 'hardhat' or '@coinmeca/ethers';
 import { Accounts } from '@coinmeca/ethers/accounts';
-import { ERC20 } from '@coinmeca/ethers/interfaces/ERC20';
+import { ERC20 } from '@coinmeca/ethers/interfaces';
 
 async function something() {
     const METH: = await ERC20(await (await ethers.getContractFactory("MockEthereum")).deploy());
@@ -27,7 +27,7 @@ async function something() {
 ```js
 import { ethers } from 'hardhat' or '@coinmeca/ethers';
 import { Accounts } from '@coinmeca/ethers/accounts';
-import { ERC20 } from '@coinmeca/ethers/interfaces/ERC20';
+import { ERC20 } from '@coinmeca/ethers/interfaces';
 
 async function something() {
     const Tokens = {
@@ -161,6 +161,28 @@ It is the same function as 'allowance' in the token contract.
 
 ```js
 await User(1).approve(Tokens.METH, User(2), 1);
+```
+
+# interfaces
+
+```js
+import { ERC20, type IERC20 } from '@coinmeca/ethers/interfaces';
+
+const MyERC20:IERC20 = await ERC20(await (await ethers.getContractFactory("MyERC20")).deploy());
+```
+
+```js
+await ERC20('0x14723A09ACff6D2A60DcdF7aA4AFf308FDDC160C');
+```
+
+```js
+import { ERC721, type IERC721 } from '@coinmeca/ethers/interfaces';
+
+const MyERC721:IERC721 = await ERC721(await (await ethers.getContractFactory("MyERC721")).deploy());
+```
+
+```js
+await ERC721('0xdD870fA1b7C4700F2BD7f44238821C26f7392148');
 ```
 
 # Utils

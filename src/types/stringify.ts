@@ -39,7 +39,10 @@ export function state(x: number): string {
             return font.bold(color.lightGray(s[x]));
         }
         case 'open': {
-            return font.bold(color.green(s[x]));
+            return font.bold(color.cyan(s[x]));
+        }
+        case 'close': {
+            return font.bold(color.lightGray(s[x]));
         }
         case 'cancel': {
             return font.bold(color.red(s[x]));

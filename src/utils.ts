@@ -206,6 +206,11 @@ export function result(result: boolean, message: string, option?: any) {
     }
 }
 
+export function getMultiplier(size: number, leverage: number): number {
+    const margin = size - leverage;
+    return leverage / margin;
+}
+
 export function getNetworkName(): any {
     const filter = ['.', '-', '_'];
     const name = filter.map((f: string) => {
