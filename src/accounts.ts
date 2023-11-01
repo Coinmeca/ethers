@@ -168,7 +168,7 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
                         console.log(color.lightGray(_(`Amount:`, 14)), f(u(h[i].amount)));
                         console.log(color.lightGray(_(`Quantity:`, 14)), color.yellow(f(u(h[i].quantity))));
                         p && console.log(color.lightGray(_(`Leverage:`, 14)), color.white(f(u(h[i].fees))));
-                        p && console.log(color.lightGray(_(`Multiplier:`, 14)), `${color.lightGray('x')}${color.white(f(getMultiplier(u(h[i].amount), u(h[i].fees))))}`);
+                        p && console.log(color.lightGray(_(`Multiplier:`, 14)), color.lightGray('x'), color.white(f(getMultiplier(u(h[i].amount), u(h[i].fees)))));
                         console.log(color.lightGray(`--------------------------------------------------------------------------------`));
                     }
                 } else fn(h);
