@@ -21,7 +21,7 @@ async function something() {
     const METH: = await ERC20(await (await ethers.getContractFactory("MockEthereum")).deploy());
 
     const { User } = await Accounts();
-
+}
 ```
 
 ```js
@@ -42,7 +42,17 @@ async function something() {
 
 ## Main Functions
 
+### `as`
+
+The actual wallet address can also be used as the User as shown below.
+
+```js
+await User(1).as('0x0000000000000000000000000000000000000000');
+```
+
 ### `balance`
+
+
 
 ```js
 const { User } = await Accounts({ tokens: Tokens });
@@ -52,9 +62,8 @@ await User(1).balance();
 ```
 
 ```js
-    // METH balance of user 1
-    await User(1).balance(METH);
-}
+// METH balance of user 1
+await User(1).balance(METH);
 ```
 
 ### `faucet`
@@ -113,7 +122,7 @@ User("deployer2") === User(0);
 
 async `send(`
 
--   **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of @coinmeca/ethers.
+-   **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of `@coinmeca/ethers`.
 
 -   **IUser**: Target user that is created from Accounts() function.
 
@@ -131,7 +140,7 @@ await User(1).send(Tokens.METH, User(2), 1);
 
 async `approve(`
 
--   **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of @coinmeca/ethers.
+-   **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of `@coinmeca/ethers`.
 
 -   **IUser**: Target user that created from Accounts() function.
 
@@ -149,7 +158,7 @@ await User(1).approve(Tokens.METH, User(2), 1);
 
 async `allowance(`
 
--   **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of @coinmeca/ethers.
+-   **IERC20**: This is a token contract wrapped in ERC20 provided in the interface of `@coinmeca/ethers`.
 
 -   **IUser**: Target user that created from Accounts() function.
 

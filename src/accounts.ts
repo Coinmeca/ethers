@@ -1,10 +1,11 @@
 import { ethers } from "hardhat";
 import { HardhatEthersSigner, SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
-import ERC20, { IERC20, IERC20Module } from "interfaces/ERC20";
 import { a, f, u, font, color, _, getMultiplier } from "utils";
 import { c, category, state } from "types/stringify";
 import { AddressString } from "./types";
+import { ERC20, type IERC20 } from "interfaces/ERC20";
+import { type IERC721 } from "./interfaces/ERC721";
 
 export interface AccountLike {
     address: AddressString;
@@ -29,11 +30,11 @@ export interface IUser extends AccountLike {
     signer: SignerWithAddress | HardhatEthersSigner;
     as: (address: AddressString) => Promise<SignerLike>;
     set: (name: number | string) => any;
-    balance: (token?: IERC20 | AddressString, display?: boolean) => Promise<any>;
-    send: (token: IERC20 | AddressString, to: AccountLike | AddressString, amount: number) => Promise<boolean | void>;
+    balance: (token?: IERC20 | IERC721 | AddressString, display?: boolean) => Promise<any>;
+    send: (token: IERC20 | IERC721 | AddressString, to: AccountLike | AddressString, amount: number) => Promise<boolean | void>;
     faucet: (token: IERC20 | AddressString, amount: number, display?: boolean) => Promise<boolean | void>;
-    allowance: (token: IERC20 | AddressString, spender: AccountLike | AddressString | AddressString) => Promise<number | string>;
-    approve: (token: IERC20 | AddressString, to: AccountLike | AddressString | AddressString, amount: number) => Promise<boolean | void>;
+    allowance: (token: IERC20 | IERC721 | AccountLike | AddressString, spender: AccountLike | AddressString | AddressString) => Promise<number | string>;
+    approve: (token: IERC20 | IERC721 | AccountLike | AddressString, to: AccountLike | AddressString | AddressString, amount: number) => Promise<boolean | void>;
     history: (...args: HistoryArgs) => Promise<any[]>;
     getHistory: (...args: GetHistoryArgs) => Promise<any>;
 }
@@ -53,8 +54,8 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
         const signer: SignerWithAddress | HardhatEthersSigner = signers[name];
         const address: AddressString = signer.address as AddressString;
 
-        const balance = async (token?: IERC20 | AddressString, display?: boolean): Promise<any> => {
-            const tokens: IERC20[] | undefined = token ? typeof token === 'string' ? [await ERC20(token)] : [token] : typeof contracts?.tokens === 'object' ? Object.values(contracts?.tokens) : Array.isArray(contracts?.tokens) ? contracts?.tokens : undefined;
+        const balance = async (token?: IERC20 | IERC721 | AddressString, display?: boolean): Promise<any> => {
+            const tokens: (IERC20 | IERC721)[] | undefined = token ? typeof token === 'string' ? [await ERC20(token)] : [token] : typeof contracts?.tokens === 'object' ? Object.values(contracts?.tokens) : Array.isArray(contracts?.tokens) ? contracts?.tokens : undefined;
             if (tokens) {
                 let token: number = await tokens[0].balanceOf(User(name));
                 if (tokens?.length > 1 || (tokens?.length === 1 && display)) {
@@ -79,8 +80,9 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
             }
         };
 
-        const send = async (token: IERC20 | AddressString, to: AccountLike | AddressString, amount: number): Promise<boolean | void> => {
-            return await (typeof token === 'string' ? await ERC20(token) : token).use(User(name)).transfer(to, amount);
+        const send = async (token: IERC20 | IERC721 | AddressString, to: AccountLike | AddressString, amount: number): Promise<boolean | void> => {
+            const t: IERC20 | IERC721 | AccountLike = typeof token === 'string' ? await ERC20(token) : token;
+            return await (t as any).use(User(name)).transfer(to, amount);
         }
 
         const faucet = async (token: IERC20 | AddressString, amount: number, display?: boolean): Promise<boolean | void> => {
@@ -94,14 +96,14 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
             return result;
         }
 
-        const allowance = async (token: IERC20 | AddressString, spender: AccountLike | AddressString | AddressString): Promise<number | string> => {
-            const t: IERC20 = typeof token === 'string' ? await ERC20(token) : token;
-            return await t.use(User(name)).allowance(address, a(spender) as AddressString);
+        const allowance = async (token: IERC20 | IERC721 | AccountLike | AddressString, spender: AccountLike | AddressString | AddressString): Promise<number | string> => {
+            const t: IERC20 | IERC721 | AccountLike = typeof token === 'string' ? await ERC20(token) : token;
+            return await (t as any).use(User(name))!.allowance(address, a(spender) as AddressString);
         }
 
-        const approve = async (token: IERC20 | AddressString, to: AccountLike | AddressString | AddressString, amount: number): Promise<boolean | void> => {
-            const t: IERC20 = typeof token === 'string' ? await ERC20(token) : token;
-            return await t.use(User(name)).approve(a(to) as AddressString, amount);
+        const approve = async (token: IERC20 | IERC721 | AccountLike | AddressString, to: AccountLike | AddressString | AddressString, amount: number): Promise<boolean | void> => {
+            const t: IERC20 | IERC721 | AccountLike = typeof token === 'string' ? await ERC20(token) : token;
+            return await (t as any).use(User(name))!.approve(a(to) as AddressString, amount);
         }
 
         const getHistory = async (...args: GetHistoryArgs): Promise<any> => {
