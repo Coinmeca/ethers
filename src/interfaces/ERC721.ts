@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { AddressLike, BaseContract } from "ethers";
+import { AddressLike, BaseContract, Typed } from "ethers";
 import { AccountLike, IUser } from "accounts";
 import { a, color } from "utils";
 import { AddressString } from "../types";
@@ -20,7 +20,7 @@ export interface IERC721Module extends AccountLike {
     tokensOf: (owner: AccountLike | AddressString, display?: boolean) => Promise<number[]>;
     keysOf: (owner: AccountLike | AddressString, display?: boolean) => Promise<string[]>;
     ownerOf: (id: number | string, display?: boolean) => Promise<AddressLike>;
-    transfer: (to: string, id: number | string) => Promise<any>;
+    transfer: (to: AccountLike | AddressString, id: number | string) => Promise<any>;
     transferFrom: (from: AccountLike | AddressString, to: AccountLike | AddressString, id: number | string) => Promise<any>;
     safeTransferFrom: (from: AccountLike | AddressString, to: AccountLike | AddressString, id: number | string, data?: any) => Promise<any>;
     approve: (to: AccountLike | AddressString, id: number | string) => Promise<any>;
@@ -31,7 +31,7 @@ export interface IERC721Module extends AccountLike {
 }
 
 export async function ERC721(token: any): Promise<IERC721> {
-    token = typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, '../artifacts/ERC20.sol/ERC20.json'))), token) : token;
+    token = typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, '../artifacts/ERC721.sol/ERC721.json'))), token) : token;
 
     const name: string = typeof token?.name === 'function' ? await token?.name() : typeof token?.name === 'string' ? token?.name : null;
     const symbol: string = typeof token?.symbol === 'function' ? await token?.symbol() : typeof token?.symbol === 'string' ? token?.symbol : null;
@@ -49,7 +49,7 @@ export async function ERC721(token: any): Promise<IERC721> {
         };
 
         const getKey = async (id: number | string, display?: boolean): Promise<string> => {
-            const key: string = await token.getKey(id);
+            const key: string = await token.getKey(typeof id === 'number' ? Typed.uint(id) : Typed.bytes32(id));
             if (display) {
                 console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
                 console.log(`🔑 Order Key:     ${key}`);
@@ -59,7 +59,7 @@ export async function ERC721(token: any): Promise<IERC721> {
         }
 
         const tokenURI = async (id: number | string, display?: boolean): Promise<string> => {
-            const uri = await token.tokenURI(id);
+            const uri = await token.tokenURI(typeof id === 'number' ? Typed.uint(id) : Typed.bytes32(id));
             if (display) {
                 console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
                 console.log(`Token ID:     ${id}`);
@@ -70,7 +70,7 @@ export async function ERC721(token: any): Promise<IERC721> {
         }
 
         const tokenIMG = async (id: number | string, display?: boolean): Promise<string> => {
-            const img = await token.tokenIMG(id);
+            const img = await token.tokenIMG(typeof id === 'number' ? Typed.uint(id) : Typed.bytes32(id));
             if (display) {
                 console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
                 console.log(`Token ID:     ${id}`);
@@ -118,7 +118,7 @@ export async function ERC721(token: any): Promise<IERC721> {
         }
 
         const ownerOf = async (id: number | string, display?: boolean): Promise<AddressLike> => {
-            const owner = await token.ownerOf(id);
+            const owner = await token.ownerOf(typeof id === 'number' ? Typed.uint(id) : Typed.bytes32(id));
             if (display) {
                 console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
                 console.log(`Owner:        ${a(owner)}`);
@@ -128,19 +128,18 @@ export async function ERC721(token: any): Promise<IERC721> {
             return owner;
         };
 
-        const transfer = async (to: string, id: number | string): Promise<any> => {
-            await (user ? token.use(user) : token).transfer(a(to), id);
-            return await token.transfer(a(to), id);
+        const transfer = async (to: AccountLike | AddressString, id: number | string): Promise<any> => {
+            return await token.transfer(a(to), typeof id === 'number' ? Typed.uint(id) : Typed.bytes32(id));
         }
 
         const transferFrom = async (from: AccountLike | AddressString, to: AccountLike | AddressString, id: number | string): Promise<any> => {
-            return await token.transferFrom(a(from), a(to), id);
+            return await token.transferFrom(a(from), a(to), typeof id === 'number' ? Typed.uint(id) : Typed.bytes32(id));
         };
 
         const safeTransferFrom = async (from: AccountLike | AddressString, to: AccountLike | AddressString, id: number | string, data?: any): Promise<any> => {
             return data
-                ? await token.safeTransferFrom(a(from), a(to), id)
-                : await token.safeTransferFrom(a(from), a(to), id, data);
+                ? await token['safeTransferFrom(address,address,uint256)'](a(from), a(to), typeof id === 'number' ? Typed.uint(id) : Typed.bytes32(id))
+                : await token['safeTransferFrom(address,address,uint256,bytes)'](a(from), a(to), typeof id === 'number' ? Typed.uint(id) : Typed.bytes32(id), data);
         }
 
         const approve = async (to: AccountLike | AddressString, id: number | string): Promise<any> => {

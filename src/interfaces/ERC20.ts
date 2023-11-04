@@ -32,13 +32,13 @@ const Native = {
 }
 
 export async function ERC20(token: any, init = Native): Promise<IERC20> {
-    const isNative = token === 'string' && token === a(0);
+    const isNative = typeof token === 'string' && token === a(0);
     token = isNative ? a(0) : typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, '../artifacts/ERC20.sol/ERC20.json'))), token) : token;
 
     const name: string = isNative ? init.name : typeof token?.name === 'function' ? await token?.name() : typeof token?.name === 'string' ? token?.name : null;
     const symbol: string = isNative ? init.symbol : typeof token?.symbol === 'function' ? await token?.symbol() : typeof token?.symbol === 'string' ? token?.symbol : null;
     const decimals: number = isNative ? init.decimals : typeof token?.decimals === 'function' ? await token?.decimals() : typeof token?.decimals === 'number' ? token?.decimals : null;
-    const address: AddressString = isNative ? init.name : typeof token?.getAddress === 'function' ? await token?.getAddress() : typeof token?.address === 'string' ? token?.address : null;
+    const address: AddressString = isNative ? init.address : typeof token?.getAddress === 'function' ? await token?.getAddress() : typeof token?.address === 'string' ? token?.address : null;
 
     const module = (token: any, user?: IUser | AccountLike): IERC20Module => {
         const totalSupply = async (): Promise<number> => {
@@ -84,7 +84,7 @@ export async function ERC20(token: any, init = Native): Promise<IERC20> {
             approve,
             faucet,
             isNative,
-            contract: token,
+            contract: isNative ? ethers.provider : token,
         }
     }
 
