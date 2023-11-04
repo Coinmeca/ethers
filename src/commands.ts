@@ -35,7 +35,7 @@ export function unit() {
         'npx',
         [
             'hardhat test',
-            `test/units/${process.argv[2]}`,
+            `test/units/${process.argv[2].replaceAll('.', '/')}`,
             ...process.argv.map((arg, i) => { if (i > 2) return arg })
         ],
         config

@@ -2,7 +2,7 @@ import { a, n, u } from "utils";
 import { signers } from "accounts";
 import type { AccountLike, IUser } from "accounts";
 import { ethers } from "hardhat";
-import { BaseContract } from "ethers";
+import { AddressLike, BaseContract, Signer } from "ethers";
 import { AddressString } from "../types";
 
 export interface IERC20 extends IERC20Module {
@@ -20,41 +20,51 @@ export interface IERC20Module extends AccountLike {
     allowance: (owner: AccountLike | AddressString, spender: AccountLike | AddressString) => Promise<number>;
     approve: (spender: AccountLike | AddressString, amount: number | string) => Promise<boolean | void>;
     faucet: (to: AccountLike | AddressString, amount: number) => Promise<boolean | void>;
+    isNative: boolean,
     contract: BaseContract;
 }
 
-export async function ERC20(token: any): Promise<IERC20> {
-    token = typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, '../artifacts/ERC20.sol/ERC20.json'))), token) : token;
+const Native = {
+    address: a(0),
+    name: 'Ethereum',
+    symbol: 'ETH',
+    decimals: 18,
+}
 
-    const name: string = typeof token?.name === 'function' ? await token?.name() : typeof token?.name === 'string' ? token?.name : null;
-    const symbol: string = typeof token?.symbol === 'function' ? await token?.symbol() : typeof token?.symbol === 'string' ? token?.symbol : null;
-    const decimals: number = typeof token?.decimals === 'function' ? await token?.decimals() : typeof token?.decimals === 'number' ? token?.decimals : null;
-    const address: AddressString = typeof token?.getAddress === 'function' ? await token?.getAddress() : typeof token?.address === 'string' ? token?.address : null;
+export async function ERC20(token: any, init = Native): Promise<IERC20> {
+    const isNative = token === 'string' && token === a(0);
+    token = isNative ? a(0) : typeof token === 'string' ? await ethers.getContractAtFromArtifact(JSON.parse(require('fs').readFileSync(require('path').resolve(__dirname, '../artifacts/ERC20.sol/ERC20.json'))), token) : token;
 
-    const module = (token: any, user?: AccountLike): IERC20Module => {
+    const name: string = isNative ? init.name : typeof token?.name === 'function' ? await token?.name() : typeof token?.name === 'string' ? token?.name : null;
+    const symbol: string = isNative ? init.symbol : typeof token?.symbol === 'function' ? await token?.symbol() : typeof token?.symbol === 'string' ? token?.symbol : null;
+    const decimals: number = isNative ? init.decimals : typeof token?.decimals === 'function' ? await token?.decimals() : typeof token?.decimals === 'number' ? token?.decimals : null;
+    const address: AddressString = isNative ? init.name : typeof token?.getAddress === 'function' ? await token?.getAddress() : typeof token?.address === 'string' ? token?.address : null;
+
+    const module = (token: any, user?: IUser | AccountLike): IERC20Module => {
         const totalSupply = async (): Promise<number> => {
-            return u(await token?.totalSupply(), decimals);
+            return isNative ? u(ethers.MaxUint256, decimals) : u(await token?.totalSupply(), decimals);
         }
 
         const balanceOf = async (owner: AccountLike | AddressString): Promise<number> => {
-            return u(await token.balanceOf(a(owner)), decimals);
+            return u(isNative ? await ethers.provider.getBalance(a(owner) as string) : await token.balanceOf(a(owner)), decimals);
         };
 
         const transfer = async (to: AccountLike | AddressString, amount: number | string): Promise<boolean | void> => {
-            return await token.transfer(a(to), n(amount, decimals));
+            return isNative ? await ((user?.signer ? user?.signer : signers[0]) as Signer).sendTransaction({ to: (a(to) as AddressLike), value: n(amount) }) : await token.transfer(a(to), n(amount, decimals));
         };
 
-        const transferFrom = async (from: AccountLike | AddressString, to: AccountLike | AddressString, amount: number): Promise<boolean | void> => {
-            await (user ? token.connect(user.signer) : token).approve(to,)
-            return await token.transferFrom(a(from), a(to), n(amount, decimals));
+        const transferFrom = async (from: IUser | AccountLike | AddressString, to: AccountLike | AddressString, amount: number): Promise<boolean | void> => {
+            const signer = await ethers.getSigner((a(from) as string)) || user?.signer;
+            await (signer ? token.connect(signer) : token).approve(to, n(amount));
+            return isNative ? await signer.sendTransaction({ to: (a(to) as AddressLike), value: n(amount) }) : await token.transferFrom(a(from), a(to), n(amount, decimals));
         };
 
         const allowance = async (owner: AccountLike | AddressString, spender: AccountLike | AddressString): Promise<number> => {
-            return u(await token.allowance(a(owner), a(spender)), decimals);
+            return isNative ? u(ethers.MaxUint256, decimals) : u(await token.allowance(a(owner), a(spender)), decimals);
         }
 
         const approve = async (spender: AccountLike | AddressString, amount: number | string): Promise<boolean | void> => {
-            return await token.approve(a(spender), n(amount, decimals));
+            return isNative ? true : await token.approve(a(spender), n(amount, decimals));
         };
 
         const faucet = async (to: AccountLike | AddressString, amount: number | string): Promise<boolean | void> => {
@@ -73,6 +83,7 @@ export async function ERC20(token: any): Promise<IERC20> {
             allowance,
             approve,
             faucet,
+            isNative,
             contract: token,
         }
     }
