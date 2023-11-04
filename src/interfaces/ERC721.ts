@@ -20,6 +20,7 @@ export interface IERC721Module extends AccountLike {
     tokensOf: (owner: AccountLike | AddressString, display?: boolean) => Promise<number[]>;
     keysOf: (owner: AccountLike | AddressString, display?: boolean) => Promise<string[]>;
     ownerOf: (id: number | string, display?: boolean) => Promise<AddressLike>;
+    transfer: (to: string, id: number | string) => Promise<any>;
     transferFrom: (from: AccountLike | AddressString, to: AccountLike | AddressString, id: number | string) => Promise<any>;
     safeTransferFrom: (from: AccountLike | AddressString, to: AccountLike | AddressString, id: number | string, data?: any) => Promise<any>;
     approve: (to: AccountLike | AddressString, id: number | string) => Promise<any>;
@@ -127,6 +128,11 @@ export async function ERC721(token: any): Promise<IERC721> {
             return owner;
         };
 
+        const transfer = async (to: string, id: number | string): Promise<any> => {
+            await (user ? token.use(user) : token).transfer(a(to), id);
+            return await token.transfer(a(to), id);
+        }
+
         const transferFrom = async (from: AccountLike | AddressString, to: AccountLike | AddressString, id: number | string): Promise<any> => {
             return await token.transferFrom(a(from), a(to), id);
         };
@@ -166,6 +172,7 @@ export async function ERC721(token: any): Promise<IERC721> {
             tokensOf,
             keysOf,
             ownerOf,
+            transfer,
             transferFrom,
             safeTransferFrom,
             approve,
