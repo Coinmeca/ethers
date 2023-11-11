@@ -4,7 +4,7 @@ export type AddressString = `${'0x'}${string[40]}`;
 
 export type Category = 'order' | 'buy' | 'sell' | 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'claim' | 'long' | 'short' | 'futures' | 'perpetual' | 'earn' | 'charge';
 export type Option = 'general' | 'market' | 'limit' | 'debit' | 'prepaid' | 'postpaid';
-export type State = 'pending' | 'filled' | 'claimable' | 'complete' | 'cancel' | 'open' | 'close' | 'liquidation' | 'requested' | 'paid' | 'shipping';
+export type State = 'pending' | 'filled' | 'claimable' | 'complete' | 'cancel' | 'open' | 'close' | 'liquidation' | 'requested' | 'paid' | 'shipping' | 'proceeding' | 'terminated';
 
 export const c = {
     order: 0,
@@ -44,6 +44,8 @@ export const s = {
     requested: 8,
     paid: 9,
     shipping: 10,
+    proceeding: 11,
+    terminated: 12
 }
 
 export interface Order {

@@ -193,6 +193,7 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
                 ...signers,
                 [`${name}`]: signer
             }
+            return module;
         }
 
         const module: IUser = {

@@ -2,7 +2,7 @@ import { font, color } from "../utils";
 
 export const c = ["Order", "Buy", "Sell", "Deposit", "Withdraw", "Stake", "Unstake", "Claim", "Long", "Short", "Futures", "Perpetual", "Earn", "Charge"];
 export const o = ["General", "Market", "Limit", "Debit", "Prepaid", "Postpaid"];
-export const s = ["Pending", "Filled", "Claimable", "Complete", "Cancel", "Open", "Close", "Liquidation", "Requested", "Paid", "Shipping"];
+export const s = ["Pending", "Filled", "Claimable", "Complete", "Cancel", "Open", "Close", "Liquidation", "Requested", "Paid", "Shipping", "Proceeding", "Terminated"];
 
 export function category(x: number): string {
     switch (c[x].toLowerCase()) {
@@ -32,19 +32,19 @@ export function state(x: number): string {
         case 'filled': {
             return font.bold(color.green(s[x]));
         }
-        case 'claimable': {
+        case 'claimable':
+        case 'proceeding': {
             return font.bold(color.cyan(s[x]));
         }
-        case 'complete': {
+        case 'complete':
+        case 'close': {
             return font.bold(color.lightGray(s[x]));
         }
         case 'open': {
             return font.bold(color.cyan(s[x]));
         }
-        case 'close': {
-            return font.bold(color.lightGray(s[x]));
-        }
-        case 'cancel': {
+        case 'cancel':
+        case 'terminated': {
             return font.bold(color.red(s[x]));
         }
         default: return s[x];
