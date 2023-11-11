@@ -19,7 +19,7 @@ export async function repeat(fn: (i: number) => Promise<void>, times: number) {
 // number to big number
 export function n(number: number | string, decimals?: number): BigNumberish {
     if (typeof number === 'string') number?.replaceAll(',', '');
-    return ethers.parseUnits(number?.toString(), decimals);
+    return ethers.parseUnits(number?.toString(), decimals ? parseInt(decimals.toString()) : undefined);
 }
 
 // big number to number
