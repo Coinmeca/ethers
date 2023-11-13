@@ -3,7 +3,7 @@ import { AccountLike } from "./accounts";
 export type AddressString = `${'0x'}${string[40]}`;
 
 export type Category = 'order' | 'buy' | 'sell' | 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'claim' | 'long' | 'short' | 'futures' | 'perpetual' | 'earn' | 'charge';
-export type Option = 'general' | 'market' | 'limit' | 'debit' | 'prepaid' | 'postpaid';
+export type Option = 'general' | 'market' | 'limit' | 'debit' | 'prepaid' | 'postpaid' | 'linear' | 'cliff' | 'rate';
 export type State = 'pending' | 'filled' | 'claimable' | 'complete' | 'cancel' | 'open' | 'close' | 'liquidation' | 'requested' | 'paid' | 'shipping' | 'proceeding' | 'terminated';
 
 export const c = {
@@ -30,6 +30,9 @@ export const o = {
     debit: 3,
     prepaid: 4,
     postpaid: 5,
+    linear: 6,
+    cliff: 7,
+    rate: 8,
 }
 
 export const s = {
