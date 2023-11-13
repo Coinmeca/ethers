@@ -1,7 +1,7 @@
 import { font, color } from "../utils";
 
 export const c = ["Order", "Buy", "Sell", "Deposit", "Withdraw", "Stake", "Unstake", "Claim", "Long", "Short", "Futures", "Perpetual", "Earn", "Charge"];
-export const o = ["General", "Market", "Limit", "Debit", "Prepaid", "Postpaid"];
+export const o = ["General", "Market", "Limit", "Debit", "Prepaid", "Postpaid", "Linear", "Cliff", "Rate"];
 export const s = ["Pending", "Filled", "Claimable", "Complete", "Cancel", "Open", "Close", "Liquidation", "Requested", "Paid", "Shipping", "Proceeding", "Terminated"];
 
 export function category(x: number): string {
