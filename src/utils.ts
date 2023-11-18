@@ -102,8 +102,8 @@ export function ft(n: number): string {
     const date: number[] = [
         Math.floor(n / 31536000),
         Math.floor((n % 31536000) / 2592000),
-        Math.floor((n % 31536000) / 604800),
-        Math.floor((n % 2592000) / 86400),
+        Math.floor((n % 2592000) / 604800),
+        Math.floor((n % 604800) / 86400),
         Math.floor((n % 86400) / 3600),
         Math.floor((n % 3600) / 60),
         Math.floor(n % 60)
