@@ -256,7 +256,7 @@ export function createArtifact(artifact: { name: string; directory: string; info
     return {
         ...artifact.info,
         contractName: `${artifact.name}.${diamondConfig.artifact?.abi?.file || 'diamond'}`,
-        sourceName: `${path || '.diamonds'} /${artifact.name}.sol`,
+        sourceName: `${path || '.diamonds'}/${artifact.name}.sol`,
         abi: Array.from(new Set(abi))
     } as const;
 }
