@@ -89,7 +89,7 @@ export async function ERC20(token: any, init = Native): Promise<IERC20> {
     }
 
     const use = (user: IUser): IERC20Module => {
-        return module(token.connect(user.signer), user);
+        return isNative ? module(token, user) : module(token.connect(user.signer), user);
     }
 
     return {
