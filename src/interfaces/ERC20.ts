@@ -68,7 +68,7 @@ export async function ERC20(token: any, init = Native): Promise<IERC20> {
         };
 
         const faucet = async (to: AccountLike | AddressString, amount: number | string): Promise<boolean | void> => {
-            return isNative ? signers[0].sendTransaction({ to: to, value: n(amount) }) : await token.connect(signers[0]).transfer(a(to), n(amount, decimals));
+            return isNative ? signers[0].sendTransaction({ to: a(to), value: n(amount) }) : await token.connect(signers[0]).transfer(a(to), n(amount, decimals));
         }
 
         return {
