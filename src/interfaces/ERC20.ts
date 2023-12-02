@@ -4,6 +4,7 @@ import type { AccountLike, IUser } from "accounts";
 import { ethers } from "hardhat";
 import { AddressLike, BaseContract, Signer } from "ethers";
 import { AddressString } from "../types";
+import { setBalance } from "@nomicfoundation/hardhat-network-helpers";
 
 export interface IERC20 extends IERC20Module {
     use: (user: IUser) => IERC20Module;
@@ -68,7 +69,7 @@ export async function ERC20(token: any, init = Native): Promise<IERC20> {
         };
 
         const faucet = async (to: AccountLike | AddressString, amount: number | string): Promise<boolean | void> => {
-            return isNative ? signers[0].sendTransaction({ to: a(to), value: n(amount) }) : await token.connect(signers[0]).transfer(a(to), n(amount, decimals));
+            return isNative ? setBalance(a(to) as AddressString, n(amount)) : await token.connect(signers[0]).transfer(a(to), n(amount, decimals));
         }
 
         return {
