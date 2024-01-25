@@ -183,13 +183,9 @@ export function _(x: any, s: number, d: 'l' | 'r' = 'l'): string {
     const gap = s <= length ? 0 : s - length;
     let result: string = msg;
     if (d === 'l') {
-        if (gap > 0) {
-            result += ' '.repeat(gap);
-        }
+        if (gap > 0) result += ' '.repeat(gap);
     } else {
-        if (gap > 0) {
-            result = ' '.repeat(gap) + result;
-        }
+        if (gap > 0) result = ' '.repeat(gap) + result;
     }
     return result;
 }
