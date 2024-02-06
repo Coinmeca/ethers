@@ -47,12 +47,10 @@ async function something() {
 The actual wallet address can also be used as the User as shown below.
 
 ```js
-await User(1).as('0x0000000000000000000000000000000000000000');
+await User(1).as("0x0000000000000000000000000000000000000000");
 ```
 
 ### `balance`
-
-
 
 ```js
 const { User } = await Accounts({ tokens: Tokens });
@@ -177,26 +175,25 @@ await User(1).approve(Tokens.METH, User(2), 1);
 Interfaces are working with basic standard requirements. So there are only the standard functions. Currently only interfaces for two token standards are supported: 20 and 721.
 
 ```js
-import { ERC20, type IERC20 } from '@coinmeca/ethers/interfaces';
+import { ERC20, type IERC20 } from "@coinmeca/ethers/interfaces";
 
-const MyERC20:IERC20 = await ERC20(await (await ethers.getContractFactory("MyERC20")).deploy());
+const MyERC20: IERC20 = await ERC20(await (await ethers.getContractFactory("MyERC20")).deploy());
 ```
 
 ```js
-import { ERC721, type IERC721 } from '@coinmeca/ethers/interfaces';
+import { ERC721, type IERC721 } from "@coinmeca/ethers/interfaces";
 
-const MyERC721:IERC721 = await ERC721(await (await ethers.getContractFactory("MyERC721")).deploy());
+const MyERC721: IERC721 = await ERC721(await (await ethers.getContractFactory("MyERC721")).deploy());
 ```
-
 
 Even if not only the case of deployment, you can apply the interface to a previously distributed contract through the address string.
 
 ```js
-await ERC20('0x14723A09ACff6D2A60DcdF7aA4AFf308FDDC160C');
+await ERC20("0x14723A09ACff6D2A60DcdF7aA4AFf308FDDC160C");
 ```
 
 ```js
-await ERC721('0xdD870fA1b7C4700F2BD7f44238821C26f7392148');
+await ERC721("0xdD870fA1b7C4700F2BD7f44238821C26f7392148");
 ```
 
 # Utils
@@ -257,7 +254,7 @@ t(3); // 3 = 3 seconds
 If you enter the UnixTimeStamp value as the starting point, the number of seconds that have elapsed based on the current time is returned in numeric format.
 
 ```js
-duraiont(1697258409); // now - 1697258409
+duration(1697258409); // now - 1697258409
 ```
 
 ### `ft`
@@ -595,15 +592,15 @@ getAllFunctionNames(baseContract);
 
 ```js
 [
-    'function owner() returns (address)',
-    'function setOwner(address)',
-    'function setAccess(address,bool)',
-    'function checkAccess(address) view returns (bool)',
-    'function setInterface(bytes4,bool)',
-    'function facet(bytes4) returns (address)',
-    'function facetAddress(bytes4) view returns (address)',
-    'function facetAddresses() view returns (address[])',
-]
+    "function owner() returns (address)",
+    "function setOwner(address)",
+    "function setAccess(address,bool)",
+    "function checkAccess(address) view returns (bool)",
+    "function setInterface(bytes4,bool)",
+    "function facet(bytes4) returns (address)",
+    "function facetAddress(bytes4) view returns (address)",
+    "function facetAddresses() view returns (address[])",
+];
 ```
 
 ### `getAllFunctionSelectors( BaseContract || {contract: BaseContract} )`
@@ -617,12 +614,7 @@ getAllFunctionSelectors(baseContract);
 ```
 
 ```js
-[
-    '0x466a0146', '0x851642bf', 
-    '0xb1530104', '0x82431dab',
-    '0xcdffacc6', '0x52ef6b2c',
-    '0xf69f473c', '0xadfca15e'
-]
+["0x466a0146", "0x851642bf", "0xb1530104", "0x82431dab", "0xcdffacc6", "0x52ef6b2c", "0xf69f473c", "0xadfca15e"];
 ```
 
 ### `getSelectors( BaseContract || {contract: BaseContract} )`
@@ -632,7 +624,7 @@ Returns an object to which the selector property and get and remove functions fo
 ```js
 import { getSelectors, type ContractWithSelectors } from "@coinmeca/ethers/diamond";
 
-const contract = await (await ethers.getContractFactory('MyContract')).deploy();
+const contract = await (await ethers.getContractFactory("MyContract")).deploy();
 const address = await facet.getAddress();
 const selectors = getSelectors(contract);
 ```
@@ -653,11 +645,11 @@ Returns selector (signature) of the given function name passed via parameter.
 ```js
 import { getSelector } from "@coinmeca/ethers/diamond";
 
-getSelector('setAccess(address,bool)');
+getSelector("setAccess(address,bool)");
 ```
 
 ```js
-'0x466a0146'
+"0x466a0146";
 ```
 
 ### `removeSelectors( selectors: Selector[] | functionNames: (Selector | string)[] )`
@@ -667,24 +659,16 @@ Removes the selector corresponding to the additionally given filter list from th
 ```js
 import { removeSelectors, type Selector } from "@coinmeca/ethers/diamond";
 
-const mySelectors: Selector[] = [
-    '0x466a0146', '0x851642bf', 
-    '0xb1530104', '0x82431dab',
-    '0xcdffacc6', '0x52ef6b2c',
-    '0xf69f473c', '0xadfca15e'
-]
+const mySelectors: Selector[] = ["0x466a0146", "0x851642bf", "0xb1530104", "0x82431dab", "0xcdffacc6", "0x52ef6b2c", "0xf69f473c", "0xadfca15e"];
 
-getSelector(['0xf69f473c', '0xadfca15e']);
+getSelector(["0xf69f473c", "0xadfca15e"]);
 // or
-getSelector([
-    'function facetAddress(bytes4) view returns (address)',
-    'function facetAddresses() view returns (address[])'
-]);
+getSelector(["function facetAddress(bytes4) view returns (address)", "function facetAddresses() view returns (address[])"]);
 ```
 
 ```diff
 [
-    '0x466a0146', '0x851642bf', 
+    '0x466a0146', '0x851642bf',
     '0xb1530104', '0x82431dab',
     '0xcdffacc6', '0x52ef6b2c',
 -   '0xf69f473c', '0xadfca15e'
