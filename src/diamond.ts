@@ -163,12 +163,19 @@ async function __createArtifact(contract: string, facets?: string[]) {
         (f) => f.includes(artifactName)
     ).filter(
         (f) => {
-            let path = diamondConfig.artifact?.abi?.path;
+            let path = diamondConfig?.artifact?.abi?.path;
             path = path ? (path?.startsWith('artifacts/') && path?.length > 10 ? path?.substring(10, path.length) : path) : undefined;
 
             return !f.includes(path || '.diamonds')
                 || !f.includes(`.${diamondConfig.artifact?.abi?.file || 'diamond'}`)
         }
+    ).filter(
+        (c) => (
+            (diamondConfig?.artifact?.abi?.include && diamondConfig?.artifact?.abi?.include?.length > 0 && diamondConfig?.artifact?.abi?.include?.find((f) => c?.includes(f)))
+                ? false
+                : c
+        )
+
     );
 
     if (diamond?.length === 1 && !facets) {
@@ -238,7 +245,7 @@ async function __createArtifact(contract: string, facets?: string[]) {
         }
     }
 
-    info = info ?? await artifacts.readArtifact(contract);
+    info = info ?? await artifacts.readArtifact(path.join('/'));
 
     return { name, path, directory, facets, info };
 }
