@@ -91,6 +91,7 @@ export interface TokenInfo {
 }
 
 export interface AppInfo {
+    logo: string;
     name: string;
     symbol: string;
     version: string;
