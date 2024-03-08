@@ -21,7 +21,7 @@ export function n(number: number | string, decimals?: number): BigNumberish {
     number = number.toString().replaceAll(',', '');
     const e = number.split('e');
     const d = e[0].split('.');
-    return ethers.parseUnits(e.length > 1 ? (d.length > 1 ? e[0] + e[1] + '0'.repeat(parseInt(e[1]) - d[1].length) : e[0] + '0'.repeat(parseInt(e[1]))) : number, decimals ? parseInt(decimals.toString()) : undefined);
+    return ethers.parseUnits(e.length > 1 ? (d.length > 1 ? e[0] + '.' + (e[1] + '0'.repeat(parseInt(e[1]) - d[1].length)).substring(0, e[1].length < 18 ? 18 : undefined) : e[0] + '0'.repeat(parseInt(e[1]))) : number, decimals ? parseInt(decimals.toString()) : undefined);
 }
 
 // big number to number
