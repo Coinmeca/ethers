@@ -1,7 +1,7 @@
 {
     "name": "@coinmeca/ethers",
     "description": "Solidty helpers and utilities for using ethers.",
-    "version": "2.1.8",
+    "version": "2.2.5",
     "keywords": [
         "coinmeca",
         "smart-contract",
@@ -53,7 +53,8 @@
         "watch": "tsc --watch",
         "build": "tsc --build && tsc-alias && tscp",
         "clean": "rimraf ./dist ./build ./tsconfig.tsbuildinfo ./node_modules/.cache",
-        "deploy": "npm publish"
+        "deploy": "npm publish",
+        "prebuild": "yarn clean"
     },
     "devDependencies": {
         "@commitlint/cli": "^18.4.2",

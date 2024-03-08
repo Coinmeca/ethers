@@ -2,7 +2,7 @@ import { AccountLike } from "./accounts";
 
 export type AddressString = `${'0x'}${string[40]}`;
 
-export type Category = 'order' | 'buy' | 'sell' | 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'claim' | 'long' | 'short' | 'futures' | 'perpetual' | 'earn' | 'charge' | 'grant' | 'lockup' | 'listing';
+export type Category = 'order' | 'buy' | 'sell' | 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'claim' | 'long' | 'short' | 'futures' | 'perpetual' | 'earn' | 'charge' | 'grant' | 'lockup' | 'vesting' | 'listing';
 export type Option = 'general' | 'market' | 'limit' | 'debit' | 'prepaid' | 'postpaid' | 'linear' | 'cliff' | 'rate';
 export type State = 'pending' | 'filled' | 'claimable' | 'complete' | 'cancel' | 'open' | 'close' | 'liquidation' | 'requested' | 'paid' | 'shipping' | 'proceeding' | 'terminated';
 
@@ -23,7 +23,8 @@ export const c = {
     charge: 13,
     grant: 14,
     lockup: 15,
-    listing: 16
+    vesting: 16,
+    listing: 17
 }
 
 export const o = {
