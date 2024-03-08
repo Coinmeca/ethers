@@ -18,8 +18,10 @@ export async function repeat(fn: (i: number) => Promise<void>, times: number) {
 
 // number to big number
 export function n(number: number | string, decimals?: number): BigNumberish {
-    if (typeof number === 'string') number?.replaceAll(',', '');
-    return ethers.parseUnits(number?.toString(), decimals ? parseInt(decimals.toString()) : undefined);
+    number = number.toString().replaceAll(',', '');
+    const e = number.split('e');
+    const d = e[0].split('.');
+    return ethers.parseUnits(e.length > 1 ? (d.length > 1 ? e[0] + e[1] + '0'.repeat(parseInt(e[1]) - d[1].length) : e[0] + '0'.repeat(parseInt(e[1]))) : number, decimals ? parseInt(decimals.toString()) : undefined);
 }
 
 // big number to number
