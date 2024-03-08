@@ -21,7 +21,22 @@ export function n(number: number | string, decimals?: number): BigNumberish {
     number = number.toString().replaceAll(',', '');
     const e = number.split('e');
     const d = e[0].split('.');
-    return ethers.parseUnits(e.length > 1 ? (d.length > 1 ? e[0] + '.' + (e[1] + '0'.repeat(parseInt(e[1]) - d[1].length)).substring(0, e[1].length < 18 ? 18 : undefined) : e[0] + '0'.repeat(parseInt(e[1]))) : number, decimals ? parseInt(decimals.toString()) : undefined);
+    return ethers.parseUnits(
+        (e.length > 1
+            ? e[1].startsWith('-')
+                ? d[0].length > Math.abs(parseInt(e[1]))
+                    ? d[0].substring(0, d[0].length - Math.abs(parseInt(e[1])) - 1) + '.' + d[0].substring(d[0].length - Math.abs(parseInt(e[1])), d[0].length) + (d?.length > 1 ? d[1] : '')
+                    : '0.' + '0'.repeat(Math.abs(parseInt(e[1])) - d[0].length) + d[0] + (d?.length > 1 ? d[1] : '')
+                : d.length > 1
+                    ? d[1].length > parseInt(e[1])
+                        ? d[0] + d[1].substring(0, d[1].length - parseInt(e[1])) + '.' + d[1].substring(d[1].length - parseInt(e[1]), d[1].length)
+                        : d[0] + d[1] + '0'.repeat(parseInt(e[1]) - d[1].length)
+                    : d[0] + '0'.repeat(parseInt(e[1]))
+            : number).substring(0, 18),
+        decimals
+            ? parseInt(decimals.toString())
+            : undefined
+    );
 }
 
 // big number to number
