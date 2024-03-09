@@ -22,8 +22,18 @@ export let signers: Signers;
 
 export interface IAccounts { User: (indexOrName: string | number | AddressString) => IUser; };
 
-type HistoryArgs = [] | [any] | [any[]] | [(x: any) => any] | [any[], (x: any) => any] | [any, (x: any) => any] | [any[], any, (x: any) => any];
-type GetHistoryArgs = [] | [string] | [any] | [string, any] | [any, string];
+type Contract = { [x: string | number | symbol]: any } | Function | Promise<any>;
+type History = string | string[] | number | number[];
+type HistoryParsing = (x: History) => any | Promise<any>;
+
+type HistoryArgs = []
+    | [History]
+    | [Contract]
+    | [History, HistoryParsing]
+    | [Contract, HistoryParsing]
+    | [Contract, History]
+    | [Contract, History, HistoryParsing]
+type GetHistoryArgs = [] | [History] | [Contract] | [History, Contract] | [Contract, History];
 
 export interface IUser extends AccountLike {
     name: number | string;
@@ -107,55 +117,59 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
         }
 
         const getHistory = async (...args: GetHistoryArgs): Promise<any> => {
-            const key = (args && args[0] && typeof args[0] === 'string') ? args[0] : (args && args?.length === 2 && typeof args[1] === 'string') ? args[1] : undefined;
-            const app = (args && args[0] && typeof args[0] !== 'string') ? args[0] : (args && args?.length === 2 && typeof args[1] !== 'string') ? args[1] : contracts?.app;
-            if (app) {
-                return key ? await app.historyGet(key) : await app.historyGetAll(a(User(name)));
-            }
-            return [];
+            const key: History | undefined = args
+                ? (Array.isArray(args[0]) && (typeof args[0][0] === 'string' || typeof args[0][0] === 'number'))
+                    ? args[0]
+                    : (typeof args[0] === 'string' || typeof args[0] === 'number')
+                        ? args[0]
+                        : (
+                            (Array.isArray(args[1]) && (typeof args[1][0] === 'string' || typeof args[1][0] === 'number'))
+                                ? args[1]
+                                : (typeof args[1] === 'string' || typeof args[1] === 'number')
+                                    ? args[1]
+                                    : undefined
+                        )
+                : undefined;
+            const app: Contract | undefined = args
+                ? (args?.length > 0 && (typeof args[0] === 'object' || typeof args[0] === 'function')
+                    ? args[0]
+                    : args?.length > 1 && (typeof args[1] === 'object' || typeof args[1] === 'function')
+                        ? args[1]
+                        : contracts?.app)
+                : contracts?.app;
+            if (key && app) return Array.isArray(key)
+                ? await Promise.all(
+                    key.map(async (k: string | number) => typeof k === 'string'
+                        ? await (typeof app === 'function' ? await app() : app)?.getHistory(k)
+                        : await (typeof app === 'function' ? await app() : app)?.getHistoryByIndex(k))
+                )
+                : typeof key === 'string'
+                    ? await (typeof app === 'function' ? await app() : app)?.getHistory(key)
+                    : await (typeof app === 'function' ? await app() : app)?.getHistoryByIndex(key);
+            else return [];
         }
 
         const history = async (...args: HistoryArgs): Promise<any[]> => {
-            const app = args
-                && args[0]
-                && (typeof args[0] === 'object'
-                    || (typeof args[0] !== 'function' && !Array.isArray(args[0])))
+            const app: Contract | undefined = args && args?.length > 0 && (typeof args[0] === 'object' || typeof args[0] === 'function')
                 ? args[0]
-                : args
-                    && args?.length === 2
-                    && (typeof args[1] === 'object'
-                        || (typeof args[1] !== 'function' && !Array.isArray(args[1])))
-                    ? args[1]
-                    : contracts?.app;
+                : contracts?.app;
 
-            const h = args[0]
-                && Array.isArray(args[0])
-                && typeof args[0] !== 'object'
-                && typeof args[0] !== 'function'
-                ? args[0]
-                : await app?.historyGetAll(a(User(name)))!;
+            const h: any[] = args &&
+                (args?.length > 0 && (Array.isArray(args[0]) || typeof args[0] === 'string' || typeof args[0] === 'number')
+                    ? args[0]
+                    : args?.length > 1 && (Array.isArray(args[1]) || typeof args[1] === 'string' || typeof args[1] === 'number')
+                        ? args[1]
+                        : await app?.getAllHistory(a(User(name)))!);
 
-            const fn = args
-                && args[0]
-                && typeof args[0] === "function"
-                && typeof args[0] !== 'object' &&
-                !Array.isArray(args[0])
-                ? args[0]
-                : args
-                    && args?.length === 2
-                    && typeof args[1] === "function"
-                    && typeof args[1] !== 'object'
-                    && !Array.isArray(args[1])
-                    ? args[1]
-                    : args
-                        && args?.length === 3
-                        && typeof args[2] === "function"
-                        && typeof args[2] !== 'object'
-                        && !Array.isArray(args[2])
-                        ? args[2]
-                        : undefined;
+            const fn: HistoryParsing | undefined = args && (
+                args?.length === 3 && typeof args[2] === 'function'
+                    ? args[2]
+                    : args?.length === 2 && typeof args[1] === 'function'
+                        ? args[1]
+                        : undefined
+            )
 
-            if (app) {
+            if (h) {
                 if (!fn || typeof fn !== 'function') {
                     console.log(color.lightGray(`---------------------------  User: '${name}' History ---------------------------`));
                     console.log(`Total: ${h?.length}`);
