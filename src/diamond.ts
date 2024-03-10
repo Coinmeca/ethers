@@ -6,22 +6,40 @@ import { Artifact, HardhatRuntimeEnvironment, RunSuperFunction, TaskArguments } 
 import { ResolvedFile } from 'hardhat/internal/solidity/resolver';
 import { CompilationJob } from 'hardhat/internal/solidity/compilation-job';
 import { TASK_COMPILE_SOLIDITY_COMPILE_JOBS } from 'hardhat/builtin-tasks/task-names';
-import { font, color, _ } from './utils';
+import { font, color, _, a } from './utils';
 import { BaseContract, Fragment, Interface } from 'ethers';
+import { AddressString } from './types';
 
 export const FacetCutAction = { Add: 0, Replace: 1, Remove: 2 };
 
+export type BytesString = `0x${string[8]}`;
 export interface Cut {
     key: string;
-    data: string[];
+    data: Data[];
+}
+
+export type Data = string | {
+    action?: number;
+    facet: string;
+    selectors?: BytesString[]
 }
 export interface Args {
     owner: any;
     init?: any;
     initCalldata?: any;
 }
+export interface FacetCut {
+    key?: string;
+    action: number;
+    facetAddress: AddressString;
+    functionSelectors: BytesString[];
+}
 
-type BytesString = string | `0x${string}`;
+export interface DiamondCut {
+    key: string;
+    data: FacetCut[];
+}
+
 
 interface DiamondDeployerConfig {
     address?: BytesString;
@@ -57,6 +75,7 @@ export interface Selectors {
 
 export interface DiamondConfig {
     deployer?: DiamondDeployerConfig;
+    cut?: string;
     artifact?: DiamondArtifactConfig;
     loupe?: DiamondExportConfig;
 }
@@ -323,10 +342,10 @@ export async function abi(contract: string, contracts?: string[]): Promise<strin
     return diamond.contractName;
 }
 
-export async function cut(cuts: Cut[], display?: boolean, name?: string): Promise<any[]> {
-    const diamond = [];
+export async function cut(cuts: Cut[], display?: boolean, name?: string): Promise<DiamondCut[]> {
+    const diamond: DiamondCut[] = [];
     for (let i = 0; i < cuts.length; i++) {
-        let data = [];
+        let data: FacetCut[] = [];
 
         if (display) {
             console.log(color.lightGray(`---------------------------------------------------------------`));
@@ -334,27 +353,72 @@ export async function cut(cuts: Cut[], display?: boolean, name?: string): Promis
             console.log(color.lightGray(`---------------------------------------------------------------`));
         }
 
-        for (const facetName of cuts[i].data) {
-            const facet = await (await ethers.getContractFactory(facetName)).deploy();
-            const address = await facet.getAddress();
-            const selectors = getSelectors(facet);
+        for (const cut of cuts[i].data) {
+            const facet = typeof cut === 'string'
+                ? cut?.startsWith('0x')
+                    ? cut
+                    : await (await ethers.getContractFactory(cut)).deploy()
+                : typeof cut === 'object' && (
+                    cut?.facet?.startsWith('0x')
+                        ? cut?.facet
+                        : await (await ethers.getContractFactory(cut?.facet)).deploy());
+            const address = typeof facet === 'object' ? await facet.getAddress() : facet;
+            const selectors = typeof cut === 'object' && cut?.selectors ? cut?.selectors : getSelectors(facet);
 
             if (display) {
-                console.log(color.lightGray(_(`Facet:`, 14)), facetName);
+                console.log(color.lightGray(_(`Facet:`, 14)), typeof cut === 'object' && typeof cut?.facet === 'string' ? cut?.facet : cut);
                 console.log(color.lightGray(_(`Address:`, 14)), address);
                 console.log(color.lightGray(_(`Selectors:`, 14)), selectors);
                 console.log(color.lightGray(`---------------------------------------------------------------`));
             }
 
             data.push({
-                facetAddress: address,
-                action: FacetCutAction.Add,
+                action: (typeof cut === 'object' && cut?.action) || FacetCutAction.Add,
+                facetAddress: address as AddressString,
                 functionSelectors: selectors
             });
         }
         diamond.push({ key: cuts[i].key, data: data });
     }
     return diamond;
+}
+
+export async function upgrade(contract: string | BaseContract & any, cuts: Cut[], init?: Args | boolean, display?: boolean): Promise<any> {
+    const deployer = (typeof init === 'object' ? init?.owner : undefined) || diamondConfig?.deployer?.address;
+    const cutFacet = diamondConfig?.cut;
+
+    if (!deployer) throw new Error(color.red(`DiamondUpgradeError: There is no deployer configured.`));
+    if (!cutFacet) throw new Error(color.red(`DiamondUpgradeError: There is no cut facet contract configured.`));
+
+    const cutContract = (typeof contract === 'string' && contract.startsWith('0x')) ? await ethers.getContractAt(cutFacet, contract) : contract;
+    return await cutContract.diamondCut(await cut(cuts, typeof init === 'boolean' ? init : display), {
+        owner: (typeof init === 'object' && init?.owner) || deployer,
+        init: (typeof init === 'object' && init?.init) || a(0),
+        initCalldata: (typeof init === 'object' && init?.initCalldata) || a(0)
+    });
+}
+
+export async function cutMultiple(facetCuts: FacetCut[]): Promise<any> {
+    const diamondCut: any = [];
+    for (let i = 0; i < facetCuts.length; i++) {
+        diamondCut.push({
+            key: facetCuts[i].key,
+            data: facetCuts
+        })
+    }
+    return diamondCut;
+}
+
+export function cutAdd(key: string, facet: string, selectors: BytesString[]): Cut[] {
+    return [{ key: key, data: [{ action: FacetCutAction.Add, facet, selectors }] }];
+}
+
+export function cutReplace(key: string, facet: string, selectors: BytesString[]): Cut[] {
+    return [{ key: key, data: [{ action: FacetCutAction.Replace, facet, selectors }] }];
+}
+
+export function cutRemove(key: string, facet: string, selectors: BytesString[]): Cut[] {
+    return [{ key: key, data: [{ action: FacetCutAction.Remove, facet, selectors }] }];
 }
 
 export async function factory(name: string, args: any[], display?: boolean) {
