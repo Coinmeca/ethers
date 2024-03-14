@@ -2,29 +2,31 @@ import { AccountLike } from "./accounts";
 
 export type AddressString = `0x${string[40]}`;
 
-export type Category = 'order' | 'buy' | 'sell' | 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'claim' | 'long' | 'short' | 'futures' | 'perpetual' | 'earn' | 'charge' | 'grant' | 'lockup' | 'vesting' | 'listing';
+export type Category = 'order' | 'bid' | 'ask' | 'buy' | 'sell' | 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'claim' | 'long' | 'short' | 'futures' | 'perpetual' | 'earn' | 'charge' | 'grant' | 'lockup' | 'vesting' | 'listing';
 export type Option = 'general' | 'market' | 'limit' | 'debit' | 'prepaid' | 'postpaid' | 'linear' | 'cliff' | 'rate';
 export type State = 'pending' | 'filled' | 'claimable' | 'complete' | 'cancel' | 'open' | 'close' | 'liquidated' | 'requested' | 'paid' | 'shipping' | 'proceeding' | 'terminated' | 'expired';
 
 export const c = {
     order: 0,
-    buy: 1,
-    sell: 2,
-    deposit: 3,
-    withdraw: 4,
-    stake: 5,
-    unstake: 6,
-    claim: 7,
-    long: 8,
-    short: 9,
-    futures: 10,
-    perpetual: 11,
-    earn: 12,
-    charge: 13,
-    grant: 14,
-    lockup: 15,
-    vesting: 16,
-    listing: 17
+    bid: 1,
+    ask: 2,
+    buy: 3,
+    sell: 4,
+    deposit: 5,
+    withdraw: 6,
+    stake: 7,
+    unstake: 8,
+    claim: 9,
+    long: 10,
+    short: 11,
+    futures: 12,
+    perpetual: 13,
+    earn: 14,
+    charge: 15,
+    grant: 16,
+    lockup: 17,
+    vesting: 18,
+    listing: 19
 }
 
 export const o = {
@@ -47,12 +49,13 @@ export const s = {
     cancel: 4,
     open: 5,
     close: 6,
-    liquidation: 7,
+    liquidated: 7,
     requested: 8,
     paid: 9,
     shipping: 10,
     proceeding: 11,
-    terminated: 12
+    terminated: 12,
+    expired: 13
 }
 
 export interface Order {
