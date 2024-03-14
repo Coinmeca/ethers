@@ -15,7 +15,7 @@ export function deploy() {
         config
     );
 
-    process.argv[3] && console.log('\n' + '📡 Network:  ' + network.replaceAll('-', ' ').replaceAll('_', ' ').replaceAll('.', ' ').replaceAll('   ', ' ').replaceAll('  ', ' ') + '\n');
+    process.argv[3] && console.log('\n' + '📡 Network:   ' + network.replaceAll('-', ' ').replaceAll('_', ' ').replaceAll('.', ' ').replaceAll('   ', ' ').replaceAll('  ', ' ') + '\n');
 }
 
 export function scenario() {
