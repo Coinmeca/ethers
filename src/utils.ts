@@ -221,7 +221,7 @@ export function result(result: boolean, message: string, option?: any) {
 
 export function getMultiplier(size: number, leverage: number): number {
     const margin = size - leverage;
-    return leverage / margin;
+    return leverage === 0 ? 0 : size / margin;
 }
 
 export function getNetworkName(): any {
