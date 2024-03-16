@@ -21,13 +21,20 @@ export interface Cut {
 export type Data = string | {
     action?: number;
     facet: string;
-    selectors?: BytesString[]
+    selectors?: BytesString[] | CutData | CutData[];
 }
+
+export type CutData = {
+    action?: number;
+    selectors: BytesString[];
+}
+
 export interface Args {
     owner: any;
     init?: any;
     initCalldata?: any;
 }
+
 export interface FacetCut {
     key?: string;
     action: number;
@@ -305,8 +312,8 @@ export async function createInfo(diamond: { name: string; address?: string; face
     return file;
 }
 
-export async function abi(contract: string, contracts?: string[]): Promise<string> {
-    const diamondArtifact = await __createArtifact(contract, contracts);
+export async function abi(name: string, facets?: string[]): Promise<string> {
+    const diamondArtifact = await __createArtifact(name, facets);
 
     const compilationJob = new abiCompilationJob(diamondArtifact.directory, diamondArtifact.name);
     const abis: string[] = [];
@@ -363,7 +370,43 @@ export async function cut(cuts: Cut[], display?: boolean, name?: string): Promis
                         ? cut?.facet
                         : await (await ethers.getContractFactory(cut?.facet)).deploy());
             const address = typeof facet === 'object' ? await facet.getAddress() : facet;
-            const selectors = typeof cut === 'object' && cut?.selectors ? cut?.selectors : getSelectors(facet);
+            const selectors: AddressString[] = typeof cut === 'object'
+                ? (
+                    Array.isArray(cut?.selectors)
+                        ? typeof cut?.selectors[0] === 'object'
+                            ? [
+                                ...getSelectors(facet),
+                                ...(
+                                    (cut?.selectors as CutData[]).map(
+                                        (c) => (!c?.action || c?.action === FacetCutAction.Add) && c?.selectors?.filter(
+                                            (a: AddressString) => !getSelectors(facet).includes(a))
+                                    )
+                                        .flatMap((a: any) => a)
+                                        .filter(s => s))
+                            ]
+                                .filter(
+                                    (f: AddressString) => (cut?.selectors as CutData[])?.filter(
+                                        (c) => c?.action === FacetCutAction.Remove)?.filter(
+                                            (c: CutData) => c?.selectors.includes(f)
+                                        ).length == 0
+                                )
+                            : cut.selectors
+                        : typeof cut?.selectors === 'object'
+                            ? [
+                                ...getSelectors(facet),
+                                ...(!cut?.selectors?.action || cut?.selectors?.action === FacetCutAction.Add
+                                    ? cut?.selectors?.selectors?.filter(
+                                        (a) => !getSelectors(facet).includes(a))
+                                    : []
+                                )
+                            ]
+                                .filter(f => !(
+                                    (cut?.selectors as CutData)?.action === FacetCutAction.Remove
+                                    && (cut?.selectors as CutData)?.selectors?.includes(f))
+                                )
+                            : cut.selectors
+                )
+                : getSelectors(facet);
 
             if (display) {
                 console.log(color.lightGray(_(`Facet:`, 14)), typeof cut === 'object' && typeof cut?.facet === 'string' ? cut?.facet : cut);
@@ -427,8 +470,8 @@ export async function factory(name: string, args: any[], display?: boolean) {
 
     for (let i = 0; i < args.length; i++) {
         if (Array.isArray(args[i]) && 'key' in args[i][0] && 'data' in args[i][0]) {
-            if (Array.isArray(args[i][0]?.data) && args[i][0]?.data.length > 0 && typeof args[i][0].data[0] === 'string') {
-                facets = args[i].flatMap((c: Cut) => c.data);
+            if (Array.isArray(args[i][0]?.data) && args[i][0]?.data.length > 0 && (typeof args[i][0].data[0] === 'string' || (typeof args[i][0].data[0] === 'object' && typeof args[i][0].data[0]?.facet === 'string'))) {
+                facets = args[i].flatMap((c: Cut) => c?.data?.map((c: any) => c?.facet || c));
                 args[i] = await cut(args[i], display);
             }
             diamond = { ...diamond, facets: args[i] };
@@ -479,9 +522,16 @@ export function getAllFunctionNames(contract: ContractWithSelectors): string[] {
     return (contract?.contract?.interface || contract?.interface).format(true).filter((f: string) => f.startsWith('function'));
 }
 
-export function getAllFunctionSelectors(contract: ContractWithSelectors): Selector[] {
+export function getAllFunctionSelectors(contract: ContractWithSelectors, display?: boolean): Selector[] {
     contract = contract?.contract?.interface ? contract?.contract : contract;
-    return getAllFunctionNames(contract).map((f: string) => contract.interface.getFunction(f)?.selector) as Selector[];
+    if (display) console.log(color.lightGray(`-----------------------------  Contract Functions  -----------------------------`));
+    return getAllFunctionNames(contract).map((f: string) => {
+        const selector = contract.interface.getFunction(f)?.selector;
+        if (display) console.log(`Function: ${f}`);
+        if (display) console.log(`Selector: ${selector}`);
+        if (display) console.log(color.lightGray(`--------------------------------------------------------------------------------`));
+        return selector;
+    }) as Selector[];
 }
 
 function get(this: ContractWithSelectors, functionNames?: (string | Selector)[]): Selector[] {
