@@ -390,7 +390,7 @@ export async function cut(cuts: Cut[], display?: boolean, name?: string): Promis
                                             (c: CutData) => c?.selectors.includes(f)
                                         ).length == 0
                                 )
-                            : cut.selectors
+                            : cut.selectors || getSelectors(facet)
                         : typeof cut?.selectors === 'object'
                             ? [
                                 ...getSelectors(facet),
@@ -404,7 +404,7 @@ export async function cut(cuts: Cut[], display?: boolean, name?: string): Promis
                                     (cut?.selectors as CutData)?.action === FacetCutAction.Remove
                                     && (cut?.selectors as CutData)?.selectors?.includes(f))
                                 )
-                            : cut.selectors
+                            : cut.selectors || getSelectors(facet)
                 )
                 : getSelectors(facet);
 
