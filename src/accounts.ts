@@ -68,7 +68,7 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
                                 const symbol = tokens[i].symbol;
                                 const balance = (tokens?.length === 1 && i === 0) ? token : await tokens[i].balanceOf(User(name));
                                 if (symbol == 'MECA') console.log(color.lightGray(`-------------------------------------------------------------`))
-                                console.log(`${_(`${symbol}:`, 14)}${font.bold(color.yellow(f(balance)))}`);
+                                console.log(`${_(`${symbol}:`, 14)}${font.bold(color.yellow(f(u(balance, tokens[i].decimals as number))))}`);
                             }
                         }
                     } else {
