@@ -85,7 +85,7 @@ export async function ERC721(token: any): Promise<IERC721> {
         }
 
         const balanceOf = async (owner: AccountLike | AddressString, display?: boolean): Promise<number> => {
-            const balance = await token.balanceOf(a(owner))
+            const balance = parseInt(await token.balanceOf(a(owner)));
             if (display) {
                 console.log(color.lightGray(`------------------------- Order NFT --------------------------`));
                 console.log(`Owner:        ${a(owner)}`);

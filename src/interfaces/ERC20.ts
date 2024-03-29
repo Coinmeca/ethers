@@ -38,7 +38,7 @@ export async function ERC20(token: any, init = Native): Promise<IERC20> {
 
     const name: string = isNative ? init.name : typeof token?.name === 'function' ? await token?.name() : typeof token?.name === 'string' ? token?.name : null;
     const symbol: string = isNative ? init.symbol : typeof token?.symbol === 'function' ? await token?.symbol() : typeof token?.symbol === 'string' ? token?.symbol : null;
-    const decimals: number = isNative ? init.decimals : typeof token?.decimals === 'function' ? await token?.decimals() : typeof token?.decimals === 'number' ? token?.decimals : 18;
+    const decimals: number = parseInt((isNative ? init.decimals : typeof token?.decimals === 'function' ? await token?.decimals() : typeof token?.decimals === 'number' ? token?.decimals : 18).toString());
     const address: AddressString = isNative ? init.address : typeof token?.getAddress === 'function' ? await token?.getAddress() : typeof token?.address === 'string' ? token?.address : null;
 
     const module = (token: any, user?: IUser | AccountLike): IERC20Module => {
