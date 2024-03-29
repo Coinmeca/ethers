@@ -44,7 +44,7 @@ export interface IUser extends AccountLike {
     send: (token: IERC20 | IERC721 | AddressString, to: AccountLike | AddressString, amount: number) => Promise<boolean | void>;
     faucet: (token: IERC20 | AddressString, amount: number, display?: boolean) => Promise<boolean | void>;
     allowance: (token: IERC20 | IERC721 | AccountLike | AddressString, spender: AccountLike | AddressString | AddressString) => Promise<number | string>;
-    approve: (token: IERC20 | IERC721 | AccountLike | AddressString, to: AccountLike | AddressString | AddressString, amount: number) => Promise<boolean | void>;
+    approve: (token: IERC20 | IERC721 | AccountLike | AddressString, to: AccountLike | AddressString | AddressString, amount: number | string | "max") => Promise<boolean | void>;
     history: (...args: HistoryArgs) => Promise<any[]>;
     getHistory: (...args: GetHistoryArgs) => Promise<any>;
 }
@@ -111,7 +111,7 @@ export async function Accounts(contracts?: { tokens: IERC20[] | { [x: string | n
             return await (t as any).use(User(name))!.allowance(address, a(spender) as AddressString);
         }
 
-        const approve = async (token: IERC20 | IERC721 | AccountLike | AddressString, to: AccountLike | AddressString | AddressString, amount: number): Promise<boolean | void> => {
+        const approve = async (token: IERC20 | IERC721 | AccountLike | AddressString, to: AccountLike | AddressString | AddressString, amount: number | string | "max"): Promise<boolean | void> => {
             const t: IERC20 | IERC721 | AccountLike = typeof token === 'string' ? await ERC20(token) : token;
             return await (t as any).use(User(name))!.approve(a(to) as AddressString, amount);
         }
