@@ -196,11 +196,26 @@ await ERC20("0x14723A09ACff6D2A60DcdF7aA4AFf308FDDC160C");
 await ERC721("0xdD870fA1b7C4700F2BD7f44238821C26f7392148");
 ```
 
+### `approve`
+
+**`( spender: contract | signer | string, amount: number | string | "max" ) => void`**
+
+```js
+MyERC20.approve("0x24cdb0e9750152cf082a93185c096842327ef277", 100);
+// Approve "100 * (10 ** MyERC20 decimals)" to "0x24cdb0e9750152cf082a93185c096842327ef277"
+
+MyERC20.approve(MyContract, "100");
+// Approve "100 * (10 ** MyERC20 decimals)" to MyContract
+
+MyERC20.approve(MyContract, "max");
+// Approve "Max Uint" to MyContract
+```
+
 # Utils
 
 ### `a`
 
-**`( (contract || signer || string || number ): {address: string} ) => string`**
+**`( contract | signer | string | number ) => string`**
 
 return an address as a string, from the contract or signer or type that has an `address` property.
 
@@ -580,7 +595,7 @@ const deploy = () =>{
 }
 ```
 
-### `getAllFunctionNames( BaseContract || {contract: BaseContract} )`
+### `getAllFunctionNames( BaseContract | {contract: BaseContract} )`
 
 Returns the function name held in the currently deployed contract in the form of a string array.
 
@@ -603,7 +618,7 @@ getAllFunctionNames(baseContract);
 ];
 ```
 
-### `getAllFunctionSelectors( BaseContract || {contract: BaseContract} )`
+### `getAllFunctionSelectors( BaseContract | {contract: BaseContract} )`
 
 Returns the selector (signature) of the function contained in the currently deployed contract in the form of a string array.
 
@@ -617,7 +632,7 @@ getAllFunctionSelectors(baseContract);
 ["0x466a0146", "0x851642bf", "0xb1530104", "0x82431dab", "0xcdffacc6", "0x52ef6b2c", "0xf69f473c", "0xadfca15e"];
 ```
 
-### `getSelectors( BaseContract || {contract: BaseContract} )`
+### `getSelectors( BaseContract | {contract: BaseContract} )`
 
 Returns an object to which the selector property and get and remove functions for handling it are added in the form of a string array with selectors (signatures) of all functions actually owned by the contract within the BaseContract itself or an object in which BaseContract exists as a contract property.
 

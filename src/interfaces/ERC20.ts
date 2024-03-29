@@ -19,7 +19,7 @@ export interface IERC20Module extends AccountLike {
     transfer: (to: AccountLike | AddressString, amount: number) => Promise<boolean | void>;
     transferFrom: (from: AccountLike | AddressString, to: AccountLike | AddressString, amount: number) => Promise<boolean | void>;
     allowance: (owner: AccountLike | AddressString, spender: AccountLike | AddressString) => Promise<number>;
-    approve: (spender: AccountLike | AddressString, amount: number | string) => Promise<boolean | void>;
+    approve: (spender: AccountLike | AddressString, amount: number | string | "max") => Promise<boolean | void>;
     faucet: (to: AccountLike | AddressString, amount: number) => Promise<boolean | void>;
     isNative: boolean,
     contract: BaseContract;
@@ -64,12 +64,24 @@ export async function ERC20(token: any, init = Native): Promise<IERC20> {
             return isNative ? u(ethers.MaxUint256, decimals) : u(await token.allowance(a(owner), a(spender)), decimals);
         }
 
-        const approve = async (spender: AccountLike | AddressString, amount: number | string): Promise<boolean | void> => {
-            return isNative ? true : await token.approve(a(spender), n(amount, decimals));
+        const approve = async (spender: AccountLike | AddressString, amount: number | string | "max"): Promise<boolean | void> => {
+            return isNative ? true : await token.approve(a(spender), amount === "max" ? ethers.MaxUint256 : n(amount, decimals));
         };
 
         const faucet = async (to: AccountLike | AddressString, amount: number | string): Promise<boolean | void> => {
-            return isNative ? await setBalance(a(to) as AddressString, n(await balanceOf(to) + parseFloat(amount.toString()))) : await token.connect(signers[0]).transfer(a(to), n(amount, decimals));
+            if (isNative) {
+                return await setBalance(a(to) as AddressString, n(await balanceOf(to) + parseFloat(amount.toString())));
+            } else {
+                try {
+                    return await token.connect(signers[0]).faucet(a(to), n(amount, decimals));
+                } catch {
+                    try {
+                        return await token.connect(signers[0]).mint(a(to), n(amount, decimals));
+                    } catch {
+                        return await token.connect(signers[0]).transfer(a(to), n(amount, decimals));
+                    }
+                }
+            }
         }
 
         return {

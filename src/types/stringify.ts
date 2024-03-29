@@ -1,15 +1,17 @@
 import { font, color } from "../utils";
 
-export const c = ["Order", "Buy", "Sell", "Deposit", "Withdraw", "Stake", "Unstake", "Claim", "Long", "Short", "Futures", "Perpetual", "Earn", "Charge", "Grant", "Lockup", "Listing"];
+export const c = ["Order", "Bid", "Ask", "Buy", "Sell", "Deposit", "Withdraw", "Stake", "Unstake", "Claim", "Long", "Short", "Futures", "Perpetual", "Earn", "Charge", "Grant", "Lockup", "Vesting", "Listing"];
 export const o = ["General", "Market", "Limit", "Debit", "Prepaid", "Postpaid", "Linear", "Cliff", "Rate"];
-export const s = ["Pending", "Filled", "Claimable", "Complete", "Cancel", "Open", "Close", "Liquidation", "Requested", "Paid", "Shipping", "Proceeding", "Terminated"];
+export const s = ["Pending", "Filled", "Claimable", "Complete", "Cancel", "Open", "Close", "Liquidated", "Requested", "Paid", "Shipping", "Proceeding", "Terminated", "Expired"];
 
 export function category(x: number): string {
     switch (c[x].toLowerCase()) {
+        case 'bid':
         case 'buy':
         case 'long': {
             return font.bold(color.green(c[x]));
         }
+        case 'ask':
         case 'sell':
         case 'short': {
             return font.bold(color.red(c[x]));
@@ -37,7 +39,8 @@ export function state(x: number): string {
             return font.bold(color.cyan(s[x]));
         }
         case 'complete':
-        case 'close': {
+        case 'close':
+        case 'expired': {
             return font.bold(color.lightGray(s[x]));
         }
         case 'open': {
