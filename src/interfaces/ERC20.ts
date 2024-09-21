@@ -55,9 +55,8 @@ export async function ERC20(token: any, init = Native): Promise<IERC20> {
         };
 
         const transferFrom = async (from: IUser | AccountLike | AddressString, to: AccountLike | AddressString, amount: number): Promise<boolean | void> => {
-            const signer = await ethers.getSigner((a(from) as string)) || user?.signer;
-            await (signer ? token.connect(signer) : token).approve(to, n(amount));
-            return isNative ? await signer.sendTransaction({ to: (a(to) as AddressLike), value: n(amount) }) : await token.transferFrom(a(from), a(to), n(amount, decimals));
+            const signer = user?.signer ? user?.signer : signers[0];
+            return isNative ? await signer.sendTransaction({ to: (a(to) as AddressLike), value: n(amount) }) : await (signer ? token.connect(signer) : token).transferFrom(a(from), a(to), n(amount, decimals));
         };
 
         const allowance = async (owner: AccountLike | AddressString, spender: AccountLike | AddressString): Promise<number> => {
@@ -65,7 +64,8 @@ export async function ERC20(token: any, init = Native): Promise<IERC20> {
         }
 
         const approve = async (spender: AccountLike | AddressString, amount: number | string | "max"): Promise<boolean | void> => {
-            return isNative ? true : await token.approve(a(spender), amount === "max" ? ethers.MaxUint256 : n(amount, decimals));
+            const signer = user?.signer ? user?.signer : signers[0];
+            return isNative ? true : await (signer ? token.connect(signer) : token).approve(a(spender), amount === "max" ? ethers.MaxUint256 : n(amount, decimals));
         };
 
         const faucet = async (to: AccountLike | AddressString, amount: number | string): Promise<boolean | void> => {
