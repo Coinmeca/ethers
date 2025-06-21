@@ -11,7 +11,11 @@ export type Category =
   | "long"
   | "short"
   | "longperp"
+  | "long.perp"
+  | "long perp"
   | "shortperp"
+  | "short.perp"
+  | "short perp"
   | "deposit"
   | "withdraw"
   | "stake"
@@ -58,7 +62,11 @@ export const c = {
   long: 5,
   short: 6,
   longperp: 7,
+  "long.perp": 7,
+  "long perp": 7,
   shortperp: 8,
+  "short.perp": 8,
+  "short perp": 8,
   listing: 9,
   deposit: 10,
   withdraw: 11,

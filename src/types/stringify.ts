@@ -8,8 +8,8 @@ export const c = [
     "Sell",
     "Long",
     "Short",
-    "LongPerp",
-    "ShortPerp",
+    "Long Perp",
+    "Short Perp",
     "Listing",
     "Deposit",
     "Withdraw",
@@ -51,7 +51,7 @@ export const s = [
 ];
 
 export function category(x: number): string {
-    switch (c[x].toLowerCase()) {
+    switch (c[x].replace(/[. ]/g, '').toLowerCase()) {
         case "bid":
         case "buy":
         case "long":
