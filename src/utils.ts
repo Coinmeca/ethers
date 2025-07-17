@@ -52,8 +52,7 @@ export async function repeat(...args: [fn: Function, times: number] | [fn: Funct
         } catch (error) {
             process.stdout.write('\r');
             console.log(`${exports.color.red(`✖`)} ${exports.color.lightGray(`Fail ${label}s progress! \n`)}`)
-
-            // console.log(error);
+            console.error(error);
         } finally {
             clearInterval(interval);
         }
