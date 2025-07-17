@@ -10,9 +10,55 @@ import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
 
 // repeat
-export async function repeat(fn: (i: number) => Promise<void>, times: number) {
-    for (let i = 0; i < times; i++) {
-        await fn(i);
+export async function repeat(...args: [fn: Function, times: number] | [fn: Function, times: number, display: boolean] | [label: string, fn: Function, times: number] | [label: string, fn: Function, times: number, display: boolean]) {
+    const label = (!!args[0] && typeof args[0] === 'string') && args[0] || '';
+    const fn = (args?.length && args.length > 2 ? args[1] : args[0]) as Function;
+    const times = (args?.length && args.length > 2 ? args[2] : args[1]) as number;
+    const display = args?.length && args.length > 3 ? args[3] : (args.length > 2 && typeof args[2]) && args[2];
+
+    if (display) {
+        const spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+
+        let stop = false;
+        let current = 0;
+        let frame = 0;
+        let msg: string | number = '';
+
+        const interval = setInterval(() => {
+            process.stdout.write('\r' + `${exports.color.cyan(spinner[frame % spinner.length])} ${(label && label !== "") ? _(exports.font.bold(`${exports.color.white(label)}:`), 14) : ''} ${msg || `${exports.color.lightGray(fn?.name || '')} ${exports.color.yellow(`${current + 1} / ${times}`)}`} \n`);
+            frame++;
+            process.stdout.write('\x1b[2K');
+            process.stdout.write('\x1b[F');
+        }, 80);
+
+        try {
+            for (let i = 0; i < times; i++) {
+                const result = await fn(i);
+                if (typeof result === 'boolean' && !!!result) {
+                    stop = true;
+                    break;
+                };
+                if (typeof result === "string" || typeof result === "number") msg = result;
+                current++;
+            }
+
+            process.stdout.write('\r' + `${exports.color.cyan(spinner[frame % spinner.length])} ${_(exports.font.bold(exports.color.white(label)), 14)}: ${msg || `${exports.color.lightGray(fn?.name || '')} ${exports.color.yellow(`${current + 1} / ${times}`)}`} \n`);
+            process.stdout.write('\x1b[2K');
+            process.stdout.write('\x1b[F');
+            process.stdout.write('\r');
+
+            if (stop) console.log(exports.color.yellow(`⧖`), exports.color.lightGray(`Stopped ${label}s progress! \n`));
+            else console.log(exports.color.green(`✔`), exports.color.lightGray(`All ${label}s complete! \n`));
+        } catch (error) {
+            process.stdout.write('\r');
+            console.log(`${exports.color.red(`✖`)} ${exports.color.lightGray(`Fail ${label}s progress! \n`)}`)
+
+            // console.log(error);
+        } finally {
+            clearInterval(interval);
+        }
+    } else for (let i = 0; i < times; i++) {
+        if ((await fn(i)) === false) break;
     }
 }
 

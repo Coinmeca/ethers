@@ -285,7 +285,7 @@ ft(88_632); // 1d 37m 12s
 
 ### `repeat`
 
-**`( fn: Function, times: number ) => void`**
+**`( fn: Function, times: number, display?: boolean ) => void`**
 
 A specific function or transaction is repeated the number of times entered.
 
@@ -294,6 +294,89 @@ await repeat(
     async (i: number) => await User(1).send(Tokens.METH, User(2), 1), // transaction to repeat
     5 // repeat times
 );
+```
+
+If the function returns a false, is will be stopped at that time.
+
+```js
+await repeat(async (i: number) => {
+    const value = await User(1).send(Tokens.METH, User(2), 1);
+    if (value === 0) return false; // repeat will be stopped if the value is '0'
+}, 10);
+```
+
+If the display arg(always at the last position) was given true, progress will be printed. But for the recognize the function name automatically, function's name have to be always given.
+
+```js
+await repeat(
+    // progress label is 'Send'
+    function Send(i: number) => {
+        const value = await User(1).send(Tokens.METH, User(2), 1);
+        if (value === 0) return false;
+    },
+    10,
+    true  // display: true
+);
+```
+
+The progress will be printed like this below.
+
+```js
+⠹ Send:      4 / 10
+```
+
+The usage case of the const function that not given its name, label will not printed.
+
+```js
+await repeat(
+    // progress label is '' (blank)
+    (i: number) => {
+        const value = await User(1).send(Tokens.METH, User(2), 1);
+        if (value === 0) return false;
+    },
+    10,
+    true  // display: true
+);
+```
+
+```js
+⠹ 4 / 10
+```
+
+The label also could be changed to other one.
+
+```js
+await repeat(
+    "Transfer", // progress label is 'Transfer'
+    (i: number) => {
+        const value = await User(1).send(Tokens.METH, User(2), 1);
+        if (value === 0) return false;
+    },
+    10,
+    true
+);
+```
+
+```js
+⠹ Transfer:  4 / 10
+```
+
+The printed message also can be able to customize. If the inner function of `repeat` returns string value, it will be printed.
+
+```js
+await repeat(
+    "Transfer",
+    (i: number) => {
+        const value = await User(1).send(Tokens.METH, User(2), 1);
+        return `${await User(1).balance(Tokens.METH)}`+ `${Tokens.METH.symbol}` + '|' + i + 'time(s)';
+    },
+    10,
+    true
+);
+```
+
+```js
+⠹ Transfer:  1 METH | 3 time(s)
 ```
 
 ### `revert`

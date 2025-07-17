@@ -1,7 +1,7 @@
 {
     "name": "@coinmeca/ethers",
     "description": "Solidty helpers and utilities for using ethers.",
-    "version": "2.7.0",
+    "version": "2.7.3",
     "keywords": [
         "coinmeca",
         "smart-contract",
