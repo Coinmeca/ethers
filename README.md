@@ -287,7 +287,7 @@ ft(88_632); // 1d 37m 12s
 
 **`( fn: Function, times: number, display?: boolean ) => void`**
 
-A specific function or transaction is repeated the number of times entered.
+A specific function or transaction is repeated the number of times specified.
 
 ```js
 await repeat(
@@ -296,7 +296,27 @@ await repeat(
 );
 ```
 
-If the function returns a false, is will be stopped at that time.
+It will return the number of times the function was successfully executed.
+
+```js
+const times = 5;
+const count = await repeat(
+    async (i: number) => await User(1).send(Tokens.METH, User(2), 1), // transaction to repeat
+    times // repeat times
+);
+
+console.log("Success Count:", count);
+```
+
+```js
+
+Error: VM Exception while processing transaction: reverted with custom error 'INSUFFICIENT_AMOUNT(0)'
+...
+
+Success Count: 3
+```
+
+If the function returns `false`, the repetition will stop immediately.
 
 ```js
 await repeat(async (i: number) => {
@@ -305,7 +325,7 @@ await repeat(async (i: number) => {
 }, 10);
 ```
 
-If the display arg(always at the last position) was given true, progress will be printed. But for the recognize the function name automatically, function's name have to be always given.
+If the `display` argument (always in the last position) is set to true, progress will be printed. To automatically recognize the function name, the function must be explicitly named.
 
 ```js
 await repeat(
@@ -319,13 +339,13 @@ await repeat(
 );
 ```
 
-The progress will be printed like this below.
+The progress will be displayed as shown below.
 
 ```js
 ⠹ Send:      4 / 10
 ```
 
-The usage case of the const function that not given its name, label will not printed.
+If an anonymous function (e.g., a constant function without a name) is used, the label will not be printed.
 
 ```js
 await repeat(
@@ -343,7 +363,7 @@ await repeat(
 ⠹ 4 / 10
 ```
 
-The label also could be changed to other one.
+The label can also be customized.
 
 ```js
 await repeat(
@@ -361,7 +381,7 @@ await repeat(
 ⠹ Transfer:  4 / 10
 ```
 
-The printed message also can be able to customize. If the inner function of `repeat` returns string value, it will be printed.
+The printed message can also be customized. If the inner function passed to `repeat` returns a string, it will be printed.
 
 ```js
 await repeat(

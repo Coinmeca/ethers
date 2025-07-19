@@ -10,22 +10,28 @@ import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
 
 // repeat
-export async function repeat(...args: [fn: Function, times: number] | [fn: Function, times: number, display: boolean] | [label: string, fn: Function, times: number] | [label: string, fn: Function, times: number, display: boolean]) {
+export async function repeat(
+    ...args:
+        | [fn: Function, times: number]
+        | [fn: Function, times: number, display: boolean]
+        | [label: string, fn: Function, times: number]
+        | [label: string, fn: Function, times: number, display: boolean]
+): Promise<number> {
     const label = (!!args[0] && typeof args[0] === 'string') && args[0] || '';
     const fn = (args?.length && args.length > 2 ? args[1] : args[0]) as Function;
     const times = (args?.length && args.length > 2 ? args[2] : args[1]) as number;
     const display = args?.length && args.length > 3 ? args[3] : (args.length > 2 && typeof args[2]) && args[2];
 
+    let count = 0;
+
     if (display) {
         const spinner = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
-
         let stop = false;
-        let current = 0;
         let frame = 0;
         let msg: string | number = '';
 
         const interval = setInterval(() => {
-            process.stdout.write('\r' + `${exports.color.cyan(spinner[frame % spinner.length])} ${(label && label !== "") ? _(exports.font.bold(`${exports.color.white(label)}:`), 14) : ''} ${msg || `${exports.color.lightGray(fn?.name || '')} ${exports.color.yellow(`${current + 1} / ${times}`)}`} \n`);
+            process.stdout.write('\r' + `${exports.color.cyan(spinner[frame % spinner.length])} ${(label && label !== "") ? _(exports.font.bold(`${exports.color.white(label)}:`), 14) : ''} ${msg || `${exports.color.lightGray(fn?.name || '')} ${exports.color.yellow(`${count + 1} / ${times}`)}`} \n`);
             frame++;
             process.stdout.write('\x1b[2K');
             process.stdout.write('\x1b[F');
@@ -39,25 +45,38 @@ export async function repeat(...args: [fn: Function, times: number] | [fn: Funct
                     break;
                 };
                 if (typeof result === "string" || typeof result === "number") msg = result;
-                current++;
+                count++;
             }
 
-            process.stdout.write('\r' + `${exports.color.cyan(spinner[frame % spinner.length])} ${_(exports.font.bold(exports.color.white(label)), 14)}: ${msg || `${exports.color.lightGray(fn?.name || '')} ${exports.color.yellow(`${current + 1} / ${times}`)}`} \n`);
+            process.stdout.write('\r' + `${exports.color.cyan(spinner[frame % spinner.length])} ${_(exports.font.bold(exports.color.white(label)), 14)}: ${msg || `${exports.color.lightGray(fn?.name || '')} ${exports.color.yellow(`${count + 1} / ${times}`)}`} \n`);
             process.stdout.write('\x1b[2K');
             process.stdout.write('\x1b[F');
             process.stdout.write('\r');
 
             if (stop) console.log(exports.color.yellow(`⧖`), exports.color.lightGray(`Stopped ${label}s progress! \n`));
             else console.log(exports.color.green(`✔`), exports.color.lightGray(`All ${label}s complete! \n`));
+
+            return count;
         } catch (error) {
             process.stdout.write('\r');
-            console.log(`${exports.color.red(`✖`)} ${exports.color.lightGray(`Fail ${label}s progress! \n`)}`)
+            console.log(`${exports.color.red(`✖`)} ${exports.color.lightGray(`Fail ${label}s progress! \n`)}`);
             console.error(error);
+            return count;
         } finally {
             clearInterval(interval);
         }
-    } else for (let i = 0; i < times; i++) {
-        if ((await fn(i)) === false) break;
+    } else {
+        try {
+            for (let i = 0; i < times; i++) {
+                const result = await fn(i);
+                if (result === false) break;
+                count++;
+            }
+            return count;
+        } catch (error) {
+            console.error(error);
+            return count;
+        }
     }
 }
 
