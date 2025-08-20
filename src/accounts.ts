@@ -46,15 +46,19 @@ export interface IUser extends AccountLike {
     as(address: AddressString): Promise<SignerLike>;
     set(name: number | string): any;
 
+    // ---- balance ----
     balance(): Promise<any>;
     balance(token: IERC20 | IERC721 | AddressString): Promise<any>;
     balance(token: IERC20 | IERC721 | AddressString, display: boolean): Promise<any>;
 
+    // ---- send ----
     send(token: IERC20 | IERC721 | AddressString, to: AccountLike | AddressString, amount: number): Promise<boolean | void>;
 
+    // ---- faucet ----
     faucet(token: IERC20 | AddressString, amount: number): Promise<boolean | void>;
     faucet(token: IERC20 | AddressString, amount: number, display: boolean): Promise<boolean | void>;
 
+    // ---- allowance / approve ----
     allowance(token: IERC20 | IERC721 | AccountLike | AddressString, spender: AccountLike | AddressString | AddressString): Promise<number | string>;
 
     approve(
