@@ -30,13 +30,14 @@ type HistoryParsing = (x: History) => any | Promise<any>;
 
 type HistoryArgs =
     | []
-    | [History]
-    | [Contract]
-    | [History, HistoryParsing]
-    | [Contract, HistoryParsing]
-    | [Contract, History]
-    | [Contract, History, HistoryParsing];
-type GetHistoryArgs = [] | [History] | [Contract] | [History, Contract] | [Contract, History];
+    | [keyOrIndex: History]
+    | [address: Contract]
+    | [keyOrIndex: History, fn: HistoryParsing]
+    | [address: Contract, fn: HistoryParsing]
+    | [address: Contract, keyOrIndex: History]
+    | [address: Contract, keyOrIndex: History, HistoryParsing];
+
+type GetHistoryArgs = [] | [keyOrIndex: History] | [address: Contract] | [keyOrIndex: History, address: Contract] | [address: Contract, keyOrIndex: History];
 
 export interface IUser extends AccountLike {
     name: number | string;
