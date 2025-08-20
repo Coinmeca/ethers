@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 import { HardhatEthersSigner, SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
 import { a, f, u, font, color, _, getMultiplier } from "utils";
-import { c, category, state } from "types/stringify";
+import { c, category, s, state } from "types/stringify";
 import { AddressString } from "./types";
 import { ERC20, type IERC20 } from "interfaces/ERC20";
 import { type IERC721 } from "./interfaces/ERC721";
@@ -215,7 +215,7 @@ export async function Accounts(contracts?: {
                 args &&
                 (args?.length === 3 && typeof args[2] === "function" ? args[2] : args?.length === 2 && typeof args[1] === "function" ? args[1] : undefined);
 
-            const s = Array.isArray(h?.[0]);
+            const t = Array.isArray(h?.[0]);
 
             if (h) {
                 if (!fn || typeof fn !== "function") {
@@ -226,10 +226,10 @@ export async function Accounts(contracts?: {
                         return {
                             key: o.key,
                             owner: o.owner,
-                            timestamp: o.timestamp,
+                            time: Number(o.time),
                             market: o.market,
-                            category: category(o.category),
-                            state: state(o.state),
+                            category: c[o.category],
+                            state: s[o.state],
                             pay: o.pay,
                             item: o.item,
                             price: u(o.price),
@@ -243,8 +243,8 @@ export async function Accounts(contracts?: {
                         const p = h[i].category?.includes("Long") || h[i].category?.includes("Short");
                         console.log(color.lightGray(_(`Key:`, 14)), h[i].key);
                         console.log(color.lightGray(_(`Market:`, 14)), color.lightGray(h[i].market));
-                        console.log(color.lightGray(_(`Category:`, 14)), h[i].category);
-                        console.log(color.lightGray(_(`State:`, 14)), h[i].state);
+                        console.log(color.lightGray(_(`Category:`, 14)), category(c?.indexOf(h[i].category)));
+                        console.log(color.lightGray(_(`State:`, 14)), state(s?.indexOf(h[i].state)));
                         console.log(color.lightGray(_(`Price:`, 14)), font.bold(color.yellow(f(h[i].price))));
                         console.log(color.lightGray(_(`Amount:`, 14)), f(h[i].amount));
                         console.log(color.lightGray(_(`Quantity:`, 14)), color.yellow(f(h[i].quantity)));
@@ -253,9 +253,9 @@ export async function Accounts(contracts?: {
                         console.log(color.lightGray(`--------------------------------------------------------------------------------`));
                     }
                 } else {
-                    h = await Promise.all((s ? h : [h])?.map(async (a) => fn(a)));
+                    h = await Promise.all((t ? h : [h])?.map(async (a) => fn(a)));
                 }
-                return s ? h : h?.[0];
+                return t ? h : h?.[0];
             }
             return [];
         };
