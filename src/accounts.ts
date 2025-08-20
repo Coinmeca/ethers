@@ -41,19 +41,42 @@ type GetHistoryArgs = [] | [History] | [Contract] | [History, Contract] | [Contr
 export interface IUser extends AccountLike {
     name: number | string;
     signer: SignerWithAddress | HardhatEthersSigner;
-    as: (address: AddressString) => Promise<SignerLike>;
-    set: (name: number | string) => any;
-    balance: (token?: IERC20 | IERC721 | AddressString, display?: boolean) => Promise<any>;
-    send: (token: IERC20 | IERC721 | AddressString, to: AccountLike | AddressString, amount: number) => Promise<boolean | void>;
-    faucet: (token: IERC20 | AddressString, amount: number, display?: boolean) => Promise<boolean | void>;
-    allowance: (token: IERC20 | IERC721 | AccountLike | AddressString, spender: AccountLike | AddressString | AddressString) => Promise<number | string>;
-    approve: (
+
+    as(address: AddressString): Promise<SignerLike>;
+    set(name: number | string): any;
+
+    balance(): Promise<any>;
+    balance(token: IERC20 | IERC721 | AddressString): Promise<any>;
+    balance(token: IERC20 | IERC721 | AddressString, display: boolean): Promise<any>;
+
+    send(token: IERC20 | IERC721 | AddressString, to: AccountLike | AddressString, amount: number): Promise<boolean | void>;
+
+    faucet(token: IERC20 | AddressString, amount: number): Promise<boolean | void>;
+    faucet(token: IERC20 | AddressString, amount: number, display: boolean): Promise<boolean | void>;
+
+    allowance(token: IERC20 | IERC721 | AccountLike | AddressString, spender: AccountLike | AddressString | AddressString): Promise<number | string>;
+
+    approve(
         token: IERC20 | IERC721 | AccountLike | AddressString,
         to: AccountLike | AddressString | AddressString,
         amount: number | string | "max"
-    ) => Promise<boolean | void>;
-    history: (...args: HistoryArgs) => Promise<any[]>;
-    getHistory: (...args: GetHistoryArgs) => Promise<any>;
+    ): Promise<boolean | void>;
+
+    // ---- history ----
+    history(): Promise<any[]>;
+    history(history: History): Promise<any[]>;
+    history(contract: Contract): Promise<any[]>;
+    history(history: History, parsing: HistoryParsing): Promise<any[]>;
+    history(contract: Contract, parsing: HistoryParsing): Promise<any[]>;
+    history(contract: Contract, history: History): Promise<any[]>;
+    history(contract: Contract, history: History, parsing: HistoryParsing): Promise<any[]>;
+
+    // ---- getHistory ----
+    getHistory(): Promise<any>;
+    getHistory(history: History): Promise<any>;
+    getHistory(contract: Contract): Promise<any>;
+    getHistory(history: History, contract: Contract): Promise<any>;
+    getHistory(contract: Contract, history: History): Promise<any>;
 }
 
 export async function Accounts(contracts?: {
