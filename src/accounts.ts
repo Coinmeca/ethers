@@ -30,11 +30,11 @@ type HistoryParsing = (x: History) => any | Promise<any>;
 
 type HistoryArgs =
     | []
-    | [keyOrIndex: History]
+    | [data: History]
     | [address: Contract]
-    | [keyOrIndex: History, fn: HistoryParsing]
+    | [data: History, fn: HistoryParsing]
     | [address: Contract, fn: HistoryParsing]
-    | [address: Contract, keyOrIndex: History]
+    | [address: Contract, data: History]
     | [address: Contract, keyOrIndex: History, HistoryParsing];
 
 type GetHistoryArgs = [] | [keyOrIndex: History] | [address: Contract] | [keyOrIndex: History, address: Contract] | [address: Contract, keyOrIndex: History];
@@ -174,69 +174,88 @@ export async function Accounts(contracts?: {
                     ? args[1]
                     : undefined
                 : undefined;
-            const app: Contract | undefined = args
+            let app: any = args
                 ? args?.length > 0 && (typeof args[0] === "object" || typeof args[0] === "function")
                     ? args[0]
                     : args?.length > 1 && (typeof args[1] === "object" || typeof args[1] === "function")
                     ? args[1]
                     : contracts?.app
                 : contracts?.app;
-            if (key && app)
+            if (typeof key !== "undefined" && app) {
+                app = typeof app === "function" ? await app() : app;
                 return Array.isArray(key)
                     ? await Promise.all(
                           key.map(async (k: string | number) =>
-                              typeof k === "string"
-                                  ? await (typeof app === "function" ? await app() : app)?.getHistory(k)
-                                  : await (typeof app === "function" ? await app() : app)?.getHistoryByIndex(k)
+                              typeof k === "string" ? await app?.getHistory(k) : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), k)
                           )
                       )
                     : typeof key === "string"
-                    ? await (typeof app === "function" ? await app() : app)?.getHistory(key)
-                    : await (typeof app === "function" ? await app() : app)?.getHistoryByIndex(key);
-            else return [];
+                    ? await app?.getHistory(key)
+                    : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), key);
+            } else return Array.isArray(key) ? [] : undefined;
         };
 
         const history = async (...args: HistoryArgs): Promise<any[]> => {
-            const app: Contract | undefined =
-                args && args?.length > 0 && (typeof args[0] === "object" || typeof args[0] === "function") ? args[0] : contracts?.app;
+            let app: any = args && args?.length > 0 && (typeof args[0] === "object" || typeof args[0] === "function") ? args[0] : contracts?.app;
+            app = typeof app === "function" ? await app() : app;
 
-            const h: any[] =
+            let h: any[] =
                 args &&
                 (args?.length > 0 && (Array.isArray(args[0]) || typeof args[0] === "string" || typeof args[0] === "number")
-                    ? args[0]
+                    ? typeof args[0] === "string"
+                        ? await app?.getHistory(args[0])
+                        : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), args[0])
                     : args?.length > 1 && (Array.isArray(args[1]) || typeof args[1] === "string" || typeof args[1] === "number")
-                    ? args[1]
+                    ? typeof args[1] === "string"
+                        ? await app?.getHistory(args[1])
+                        : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), args[1])
                     : await app?.getAllHistory(a(User(name)))!);
 
             const fn: HistoryParsing | undefined =
                 args &&
                 (args?.length === 3 && typeof args[2] === "function" ? args[2] : args?.length === 2 && typeof args[1] === "function" ? args[1] : undefined);
 
+            const s = Array.isArray(h?.[0]);
+
             if (h) {
                 if (!fn || typeof fn !== "function") {
                     console.log(color.lightGray(`---------------------------  User: '${name}' History ---------------------------`));
                     console.log(`Total: ${h?.length}`);
                     console.log(color.lightGray(`--------------------------------------------------------------------------------`));
+                    h = (Array.isArray(h?.[0]) ? h : [h])?.map((o) => {
+                        return {
+                            key: o.key,
+                            owner: o.owner,
+                            timestamp: o.timestamp,
+                            market: o.market,
+                            category: category(o.category),
+                            state: state(o.state),
+                            pay: o.pay,
+                            item: o.item,
+                            price: u(o.price),
+                            amount: u(o.amount),
+                            quantity: u(o.quantity),
+                            fees: u(o.fees),
+                        };
+                    });
+
                     for (let i = 0; i < h.length; i++) {
-                        const p = c[h[i].category].includes("Long") || c[h[i].category].includes("Short");
+                        const p = h[i].category?.includes("Long") || h[i].category?.includes("Short");
                         console.log(color.lightGray(_(`Key:`, 14)), h[i].key);
                         console.log(color.lightGray(_(`Market:`, 14)), color.lightGray(h[i].market));
-                        console.log(color.lightGray(_(`Category:`, 14)), category(h[i].category));
-                        console.log(color.lightGray(_(`State:`, 14)), state(h[i].state));
-                        console.log(color.lightGray(_(`Price:`, 14)), font.bold(color.yellow(f(u(h[i].price)))));
-                        console.log(color.lightGray(_(`Amount:`, 14)), f(u(h[i].amount)));
-                        console.log(color.lightGray(_(`Quantity:`, 14)), color.yellow(f(u(h[i].quantity))));
-                        p && console.log(color.lightGray(_(`Leverage:`, 14)), color.white(f(u(h[i].fees))));
-                        p &&
-                            console.log(
-                                color.lightGray(_(`Multiplier:`, 14)),
-                                color.lightGray("x"),
-                                color.white(f(getMultiplier(u(h[i].amount), u(h[i].fees))))
-                            );
+                        console.log(color.lightGray(_(`Category:`, 14)), h[i].category);
+                        console.log(color.lightGray(_(`State:`, 14)), h[i].state);
+                        console.log(color.lightGray(_(`Price:`, 14)), font.bold(color.yellow(f(h[i].price))));
+                        console.log(color.lightGray(_(`Amount:`, 14)), f(h[i].amount));
+                        console.log(color.lightGray(_(`Quantity:`, 14)), color.yellow(f(h[i].quantity)));
+                        p && console.log(color.lightGray(_(`Leverage:`, 14)), color.white(f(h[i].fees)));
+                        p && console.log(color.lightGray(_(`Multiplier:`, 14)), color.lightGray("x"), color.white(f(getMultiplier(h[i].amount, h[i].fees))));
                         console.log(color.lightGray(`--------------------------------------------------------------------------------`));
                     }
-                } else fn(h);
-                return h;
+                } else {
+                    h = await Promise.all((s ? h : [h])?.map(async (a) => fn(a)));
+                }
+                return s ? h : h?.[0];
             }
             return [];
         };
