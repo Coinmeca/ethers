@@ -283,9 +283,9 @@ export function result(result: boolean, message: string, option?: any) {
     }
 }
 
-export function getMultiplier(size: number, leverage: number): number {
-    const margin = size - leverage;
-    return size === 0 ? 0 : leverage === 0 ? 0 : size > margin ? size / margin : size;
+export function getLeverage(size: number, debt: number): number {
+    const margin = size - debt;
+    return size === 0 ? 0 : debt === 0 ? 0 : size > margin ? size / margin : size;
 }
 
 export function getNetworkName(): any {

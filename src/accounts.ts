@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 import { HardhatEthersSigner, SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
-import { a, f, u, font, color, _, getMultiplier } from "utils";
+import { a, f, u, font, color, _, getLeverage } from "utils";
 import { c, category, s, state } from "types/stringify";
 import { AddressString } from "./types";
 import { ERC20, type IERC20 } from "interfaces/ERC20";
@@ -101,10 +101,10 @@ export async function Accounts(contracts?: {
                     ? [await ERC20(token)]
                     : [token]
                 : typeof contracts?.tokens === "object"
-                ? Object.values(contracts?.tokens)
-                : Array.isArray(contracts?.tokens)
-                ? contracts?.tokens
-                : undefined;
+                    ? Object.values(contracts?.tokens)
+                    : Array.isArray(contracts?.tokens)
+                        ? contracts?.tokens
+                        : undefined;
             if (tokens) {
                 let token: number = await tokens[0].balanceOf(User(name));
                 if (tokens?.length > 1 || (tokens?.length === 1 && display)) {
@@ -167,31 +167,31 @@ export async function Accounts(contracts?: {
                 ? Array.isArray(args[0]) && (typeof args[0][0] === "string" || typeof args[0][0] === "number")
                     ? args[0]
                     : typeof args[0] === "string" || typeof args[0] === "number"
-                    ? args[0]
-                    : Array.isArray(args[1]) && (typeof args[1][0] === "string" || typeof args[1][0] === "number")
-                    ? args[1]
-                    : typeof args[1] === "string" || typeof args[1] === "number"
-                    ? args[1]
-                    : undefined
+                        ? args[0]
+                        : Array.isArray(args[1]) && (typeof args[1][0] === "string" || typeof args[1][0] === "number")
+                            ? args[1]
+                            : typeof args[1] === "string" || typeof args[1] === "number"
+                                ? args[1]
+                                : undefined
                 : undefined;
             let app: any = args
                 ? args?.length > 0 && (typeof args[0] === "object" || typeof args[0] === "function")
                     ? args[0]
                     : args?.length > 1 && (typeof args[1] === "object" || typeof args[1] === "function")
-                    ? args[1]
-                    : contracts?.app
+                        ? args[1]
+                        : contracts?.app
                 : contracts?.app;
             if (typeof key !== "undefined" && app) {
                 app = typeof app === "function" ? await app() : app;
                 return Array.isArray(key)
                     ? await Promise.all(
-                          key.map(async (k: string | number) =>
-                              typeof k === "string" ? await app?.getHistory(k) : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), k)
-                          )
-                      )
+                        key.map(async (k: string | number) =>
+                            typeof k === "string" ? await app?.getHistory(k) : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), k)
+                        )
+                    )
                     : typeof key === "string"
-                    ? await app?.getHistory(key)
-                    : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), key);
+                        ? await app?.getHistory(key)
+                        : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), key);
             } else return Array.isArray(key) ? [] : undefined;
         };
 
@@ -206,10 +206,10 @@ export async function Accounts(contracts?: {
                         ? await app?.getHistory(args[0])
                         : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), args[0])
                     : args?.length > 1 && (Array.isArray(args[1]) || typeof args[1] === "string" || typeof args[1] === "number")
-                    ? typeof args[1] === "string"
-                        ? await app?.getHistory(args[1])
-                        : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), args[1])
-                    : await app?.getAllHistory(a(User(name)))!);
+                        ? typeof args[1] === "string"
+                            ? await app?.getHistory(args[1])
+                            : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), args[1])
+                        : await app?.getAllHistory(a(User(name)))!);
 
             const fn: HistoryParsing | undefined =
                 args &&
@@ -248,8 +248,8 @@ export async function Accounts(contracts?: {
                         console.log(color.lightGray(_(`Price:`, 14)), font.bold(color.yellow(f(h[i].price))));
                         console.log(color.lightGray(_(`Amount:`, 14)), f(h[i].amount));
                         console.log(color.lightGray(_(`Quantity:`, 14)), color.yellow(f(h[i].quantity)));
-                        p && console.log(color.lightGray(_(`Leverage:`, 14)), color.white(f(h[i].fees)));
-                        p && console.log(color.lightGray(_(`Multiplier:`, 14)), color.lightGray("x"), color.white(f(getMultiplier(h[i].amount, h[i].fees))));
+                        p && console.log(color.lightGray(_(`Debt:`, 14)), color.white(f(h[i].fees)));
+                        p && console.log(color.lightGray(_(`Leverage:`, 14)), color.lightGray("x"), color.white(f(getLeverage(h[i].amount, h[i].fees))));
                         console.log(color.lightGray(`--------------------------------------------------------------------------------`));
                     }
                 } else {
