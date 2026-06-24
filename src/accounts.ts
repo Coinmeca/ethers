@@ -39,6 +39,11 @@ type HistoryArgs =
 
 type GetHistoryArgs = [] | [keyOrIndex: History] | [address: Contract] | [keyOrIndex: History, address: Contract] | [address: Contract, keyOrIndex: History];
 
+const ZERO = "0x0000000000000000000000000000000000000000";
+const DATA = [
+    "function data((uint8,uint8,uint8,uint256,uint256,uint256,uint256,uint256,address,address,address,address,bytes32)) view returns ((uint8,uint8,uint8,uint256,uint256,uint256,uint256,uint256,address,address,address,address,bytes32))"
+];
+
 export interface IUser extends AccountLike {
     name: number | string;
     signer: SignerWithAddress | HardhatEthersSigner;
@@ -162,6 +167,18 @@ export async function Accounts(contracts?: {
             return await (t as any).use(User(name))!.approve(a(to) as AddressString, amount);
         };
 
+        const project = async (o: any): Promise<any> => {
+            const category = Number(o?.category ?? 0);
+            if (o?.market && o.market !== ZERO && category > 0 && category < 9) {
+                try {
+                    return await (await ethers.getContractAt(DATA, o.market)).data(o);
+                } catch {
+                    return o;
+                }
+            }
+            return o;
+        };
+
         const getHistory = async (...args: GetHistoryArgs): Promise<any> => {
             const key: History | undefined = args
                 ? Array.isArray(args[0]) && (typeof args[0][0] === "string" || typeof args[0][0] === "number")
@@ -186,12 +203,12 @@ export async function Accounts(contracts?: {
                 return Array.isArray(key)
                     ? await Promise.all(
                         key.map(async (k: string | number) =>
-                            typeof k === "string" ? await app?.getHistory(k) : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), k)
+                            project(typeof k === "string" ? await app?.getHistory(k) : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), k))
                         )
                     )
                     : typeof key === "string"
-                        ? await app?.getHistory(key)
-                        : await app?.["getHistoryByIndex(address, uint)"](a(User(name)), key);
+                        ? project(await app?.getHistory(key))
+                        : project(await app?.["getHistoryByIndex(address, uint)"](a(User(name)), key));
             } else return Array.isArray(key) ? [] : undefined;
         };
 
@@ -218,11 +235,12 @@ export async function Accounts(contracts?: {
             const t = Array.isArray(h?.[0]);
 
             if (h) {
+                h = await Promise.all((Array.isArray(h?.[0]) ? h : [h])?.map((o) => project(o)));
                 if (!fn || typeof fn !== "function") {
                     console.log(color.lightGray(`---------------------------  User: '${name}' History ---------------------------`));
                     console.log(`Total: ${h?.length}`);
                     console.log(color.lightGray(`--------------------------------------------------------------------------------`));
-                    h = (Array.isArray(h?.[0]) ? h : [h])?.map((o) => {
+                    h = h?.map((o) => {
                         const category = c[o.category];
                         const position = category?.includes("Long") || category?.includes("Short");
                         const amount = u(o.amount);
