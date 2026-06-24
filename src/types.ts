@@ -123,6 +123,9 @@ export interface Order {
   amount: number;
   quantity: number;
   fees: number;
+  collateral?: number;
+  debt?: number;
+  leverage?: number;
   pay: AccountLike | AddressString | string;
   item: AccountLike | AddressString | string;
   owner: AccountLike | AddressString | string;

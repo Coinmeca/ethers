@@ -283,9 +283,8 @@ export function result(result: boolean, message: string, option?: any) {
     }
 }
 
-export function getLeverage(size: number, debt: number): number {
-    const margin = size - debt;
-    return size === 0 ? 0 : debt === 0 ? 0 : size > margin ? size / margin : size;
+export function getLeverage(size: number, collateral: number): number {
+    return size === 0 || collateral === 0 ? 0 : size / collateral;
 }
 
 export function getNetworkName(): any {

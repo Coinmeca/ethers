@@ -223,19 +223,26 @@ export async function Accounts(contracts?: {
                     console.log(`Total: ${h?.length}`);
                     console.log(color.lightGray(`--------------------------------------------------------------------------------`));
                     h = (Array.isArray(h?.[0]) ? h : [h])?.map((o) => {
+                        const category = c[o.category];
+                        const position = category?.includes("Long") || category?.includes("Short");
+                        const amount = u(o.amount);
+                        const fees = u(o.fees);
                         return {
                             key: o.key,
                             owner: o.owner,
                             time: Number(o.time),
                             market: o.market,
-                            category: c[o.category],
+                            category,
                             state: s[o.state],
                             pay: o.pay,
                             item: o.item,
                             price: u(o.price),
-                            amount: u(o.amount),
+                            amount,
                             quantity: u(o.quantity),
-                            fees: u(o.fees),
+                            fees,
+                            collateral: position ? fees : undefined,
+                            debt: position ? (amount > fees ? amount - fees : 0) : undefined,
+                            leverage: position ? getLeverage(amount, fees) : undefined,
                         };
                     });
 
@@ -248,8 +255,9 @@ export async function Accounts(contracts?: {
                         console.log(color.lightGray(_(`Price:`, 14)), font.bold(color.yellow(f(h[i].price))));
                         console.log(color.lightGray(_(`Amount:`, 14)), f(h[i].amount));
                         console.log(color.lightGray(_(`Quantity:`, 14)), color.yellow(f(h[i].quantity)));
-                        p && console.log(color.lightGray(_(`Debt:`, 14)), color.white(f(h[i].fees)));
-                        p && console.log(color.lightGray(_(`Leverage:`, 14)), color.lightGray("x"), color.white(f(getLeverage(h[i].amount, h[i].fees))));
+                        p && console.log(color.lightGray(_(`Collateral:`, 14)), color.white(f(h[i].collateral)));
+                        p && console.log(color.lightGray(_(`Debt:`, 14)), color.white(f(h[i].debt)));
+                        p && console.log(color.lightGray(_(`Leverage:`, 14)), color.lightGray("x"), color.white(f(h[i].leverage)));
                         console.log(color.lightGray(`--------------------------------------------------------------------------------`));
                     }
                 } else {
